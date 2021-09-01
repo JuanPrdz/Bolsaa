@@ -1,0 +1,7 @@
+---
+title: "BOLSAA"
+author: "Iván Arellano"
+date: "31/8/2021"
+output: html_document
+---
+
