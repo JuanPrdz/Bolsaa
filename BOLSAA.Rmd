@@ -22,3 +22,18 @@ En este proyecto, analizamos a la Bolsa Mexicana de Valores como activo financie
 - Dividendos: **2.02 por acción** 
 - Oficinas centrales: **Ciudad de México, PASEO DE LA REFORMA 255 CUAUHTEMOC ,06500, MEXICO CDMX.**
 
+
+
+## Rendimiento Acumulado
+
+| Año actual |<font color = red>    -13.91% |
+|:----------:|:----------------------------:|
+| 1 mes      | <font color = red>   -1.65%  |
+| 3 Años     | <font color = green> 6.73%   |
+| 5 Años     | <font color = green>1 8.20%  |
+
+
+
+
+
+
