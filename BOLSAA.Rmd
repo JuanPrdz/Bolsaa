@@ -6,8 +6,17 @@ output: html_document
 ---
 
 
-## **Introducción:** 
-En este proyecto, analizamos a la Bolsa Mexicana de Valores como activo financiero, en esta primera entrega describiremos un poco de lo que va la empresa, su información relevante para informar ampliamente y que le pueda ser de utilidad a un posible inversionista, sus rendimientos históricos desde el 2019 hasta la fecha (trimestralmente). Además hablaremos sobre los riesgos que conlleva esta empresa, entre otras características de este activo. 
+## **Introducción:**
+<p style='text-align: justify;'>
+En este proyecto, analizamos a la Bolsa Mexicana de Valores como activo financiero, en esta primera entrega describiremos un poco de lo que va la empresa, su información relevante para informar ampliamente y que le pueda ser de utilidad a un posible inversionista, sus rendimientos históricos desde el 2019 hasta la fecha (trimestralmente). Además hablaremos sobre los riesgos que conlleva esta empresa, entre otras características de este activo.
+</p>
+
+
+## **Bolsa Mexicana de valores**
+<p style='text-align: justify;'>
+La [Bolsa Mexicana de Valores SAB de CV](https://www.bmv.com.mx/es/Grupo_BMV') opera como una empresa de servicios financieros. La empresa se dedica al comercio de efectivo, derivados cotizados y mercados extrabursátiles para múltiples clases de activos. Ofrece cotización, negociación y operaciones de instrumentos de renta variable y deuda cotizados y servicios de custodia, compensación, liquidación, contraparte y venta de datos. La empresa fue fundada en 1894 y tiene su sede en la Ciudad de México, México.
+</p>
+
 
 ## **Información relevante del activo:** 
 
@@ -26,11 +35,11 @@ En este proyecto, analizamos a la Bolsa Mexicana de Valores como activo financie
 
 ## Rendimiento Acumulado
 
-| Año actual |<font color = red>    -13.91% |
+| Año actual |<font color = red>   -13.91%  |
 |:----------:|:----------------------------:|
 | 1 mes      | <font color = red>   -1.65%  |
-| 3 Años     | <font color = green> 6.73%   |
-| 5 Años     | <font color = green>1 8.20%  |
+| 3 Años     | <font color = green>  6.73%  |
+| 5 Años     | <font color = green> 18.20%  |
 
 
 
