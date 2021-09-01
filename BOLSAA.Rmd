@@ -18,7 +18,7 @@ La [Bolsa Mexicana de Valores SAB de CV](https://www.bmv.com.mx/es/Grupo_BMV') o
 </p>
 
 
-## **Información relevante del activo:** 
+## **Información relevante del activo:**  ![](https://www.bmv.com.mx/docs-pub/GESTOR/IMAGENES_EMISORAS/7029.jpg){width='100px'}
 
 - Clave de pizarra:  **(BOLSA A)**
 - Inicio de cotización:  **13 de Junio 2008 realiza su oferta pública en la BMV**
@@ -79,9 +79,4 @@ Riesgo sistemático:
 * Investing (2021). Enlace: https://mx.investing.com/equities/bolsa-mexicana-de-valores-a
 * GBM (2021). Enlace: https://plus.gbm.com/index.html
 * Factset (2021). Enlace: https://my.apps.factset.com/navigator/company-security/snapshot/BOLSAA-MX
-
-
-
-
-
 
