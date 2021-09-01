@@ -35,13 +35,50 @@ La [Bolsa Mexicana de Valores SAB de CV](https://www.bmv.com.mx/es/Grupo_BMV') o
 <sup> Datos recopilados de [GBM+](https://plus.gbm.com/index.html),[Investing]('https://www.investing.com/equities/bolsa-mexicana-de-valores-a') y [Factset](https://login.factset.com/login/xoM4jTODNt1DQZiEFfv2epjgwEy_90OY4PMHmCT4nVWBNoOUq5l1gngk-6goz21COdbrZuVD15k0pCIYD-6IuetP5fqblSARR2M8A421ykG2qY2giA_YLQ/xoM55/Qxo97)  <sup>
 
 
-## Rendimiento Acumulado
+## **Rendimiento Acumulado**
 
 | Año actual |<font color = red>   -13.91%  |
 |:----------:|:----------------------------:|
 | 1 mes      | <font color = red>   -1.65%  |
 | 3 Años     | <font color = green>  6.73%  |
 | 5 Años     | <font color = green> 18.20%  |
+
+## **Tabla de UPA**
+| Trimestre | Utilidad Neta | Acciones en circulación |           UPA          |
+|-----------|---------------|-------------------------|------------------------|
+| Q1-2019   | 326,143,950   | 592,989,000             |<font color = red> 0.55 |
+| Q2-2019   | 332,073,840   | 592,989,000             |<font color = red> 0.56 |
+| Q3-2019   | 367,653,180   | 592,989,000             |<font color = red> 0.62 |
+| Q4-2019   | 308,354,280   | 592,989,000             |<font color = red> 0.52 |
+| Q1-2020   | 456,601,530   | 592,989,000             |<font color = red> 0.77 |
+| Q2-2020   | 367,653,180   | 592,989,000             |<font color = red> 0.62 |
+| Q3-2020   | 343,933,620   | 592,989,000             |<font color = red> 0.58 |
+| Q4-2020   | 326,143,950   | 592,989,000             |<font color = red> 0.55 |
+| Q1-2021   | 379,512,960   | 592,989,000             |<font color = red> 0.64 |
+| Q2-2021   | 355,793,400   | 592,989,000             |<font color = red> 0.60 |
+
+## **Riesgos**
+<p style='text-align: justify;'>
+Los riesgos implicados en este activo, que logramos identificar, son:
+* Riesgo político: Las regulaciones que impone Secretaría de Hacienda y Crédito Público ante ellos
+* Riesgo de mercado: Las empresas enlistadas, dejen de operar.
+* Riesgo operativo: La plataforma deja de operar por algún problema técnico. 
+* Riesgo sistemático: 
+</p>
+
+## **Conclusión**
+<p style=='text-align: justify;'>
+Los riesgos implicados en este activo, que logramos identificar, son:
+Riesgo político: Las regulaciones que impone Secretaría de Hacienda y Crédito Público ante ellos
+Riesgo de mercado: Las empresas enlistadas, dejen de operar.
+Riesgo operativo: La plataforma deja de operar por algún problema técnico. 
+Riesgo sistemático: 
+</p>
+
+## **Referencias**
+* Investing (2021). Enlace: https://mx.investing.com/equities/bolsa-mexicana-de-valores-a
+* GBM (2021). Enlace: https://plus.gbm.com/index.html
+* Factset (2021). Enlace: https://my.apps.factset.com/navigator/company-security/snapshot/BOLSAA-MX
 
 
 
