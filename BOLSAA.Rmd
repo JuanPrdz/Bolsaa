@@ -1,6 +1,6 @@
 ---
 title: "Analisis de activo fianciero (BOLSAA)"
-author: "Iván Arellano , Juan Pablo Rodriguez , Santiago"
+author: "Iván Arellano , Juan Pablo Rodriguez , Santiago Romero"
 date: "31/8/2021"
 output: html_document
 ---
@@ -79,8 +79,8 @@ La [Bolsa Mexicana de Valores SAB de CV](https://www.bmv.com.mx/es/Grupo_BMV') o
 | Q2-2021   | 355,793,400   | 592,989,000             |<font color = red> 0.60 |
 
 
-
-```{r}
+## **Precios Historicos**
+```{r,echo=FALSE}
 plot(Bolsa)
 ```
 
@@ -98,13 +98,19 @@ plot(Bolsa)
 </p>
 
 ## **Conclusión**
-<p style=='text-align: justify;'>
-Los riesgos implicados en este activo, que logramos identificar, son:
-Riesgo político: Las regulaciones que impone Secretaría de Hacienda y Crédito Público ante ellos
-Riesgo de mercado: Las empresas enlistadas, dejen de operar.
-Riesgo operativo: La plataforma deja de operar por algún problema técnico. 
-Riesgo sistemático: 
+
+<p style='text-align: justify;'>
+
+**Los riesgos implicados en este activo, que logramos identificar, son:**
+
+- Riesgo político: Las regulaciones que impone Secretaría de Hacienda y Crédito Público ante ellos
+- Riesgo de mercado: Las empresas enlistadas, dejen de operar.
+- Riesgo operativo: La plataforma deja de operar por algún problema técnico. 
+- Riesgo sistemático: El riesgo sistematico esta implicito en todos los activos independientemente de sus   caracteristicas
+
 </p>
+
+
 
 ## **Referencias**
 * Investing (2021). Enlace: https://mx.investing.com/equities/bolsa-mexicana-de-valores-a
