@@ -5,6 +5,27 @@ date: "31/8/2021"
 output: html_document
 ---
 
+```{r,include=FALSE}
+# Cargamos librerias
+library(ggplot2)
+library(tibble)
+library(tidyverse)
+library(kableExtra)
+library(knitr)
+library(tidyquant)
+```
+
+```{r,include=FALSE}
+options("getSymbols.warning4.0"=FALSE)
+options("getSymbols.yahoo.warning"=FALSE)
+# Downloading Apple price using quantmod
+
+getSymbols("BOLSAA.MX", from = '2019-01-01',
+           to = "2021-08-30",warnings = FALSE,
+           auto.assign = TRUE)
+Bolsa <- BOLSAA.MX$BOLSAA.MX.Adjusted
+
+```
 
 ## **Introducción:**
 <p style='text-align: justify;'>
@@ -57,13 +78,23 @@ La [Bolsa Mexicana de Valores SAB de CV](https://www.bmv.com.mx/es/Grupo_BMV') o
 | Q1-2021   | 379,512,960   | 592,989,000             |<font color = red> 0.64 |
 | Q2-2021   | 355,793,400   | 592,989,000             |<font color = red> 0.60 |
 
+
+
+```{r}
+plot(Bolsa)
+```
+
+
 ## **Riesgos**
 <p style='text-align: justify;'>
-Los riesgos implicados en este activo, que logramos identificar, son:
-* Riesgo político: Las regulaciones que impone Secretaría de Hacienda y Crédito Público ante ellos
-* Riesgo de mercado: Las empresas enlistadas, dejen de operar.
-* Riesgo operativo: La plataforma deja de operar por algún problema técnico. 
-* Riesgo sistemático: 
+
+**Los riesgos implicados en este activo, que logramos identificar, son:**
+
+-  Riesgo político: Las regulaciones que impone Secretaría de Hacienda y Crédito Público ante ellos
+-  Riesgo de mercado: Las empresas enlistadas, dejen de operar.
+-  Riesgo operativo: La plataforma deja de operar por algún problema técnico. 
+-  Riesgo sistemático: 
+
 </p>
 
 ## **Conclusión**
