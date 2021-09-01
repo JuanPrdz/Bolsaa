@@ -1,7 +1,24 @@
 ---
-title: "BOLSAA"
-author: "Iván Arellano"
+title: "Analisis de activo fianciero (BOLSAA)"
+author: "Iván Arellano , Juan Pablo Rodriguez , Santiago"
 date: "31/8/2021"
 output: html_document
 ---
+
+
+## **Introducción:** 
+En este proyecto, analizamos a la Bolsa Mexicana de Valores como activo financiero, en esta primera entrega describiremos un poco de lo que va la empresa, su información relevante para informar ampliamente y que le pueda ser de utilidad a un posible inversionista, sus rendimientos históricos desde el 2019 hasta la fecha (trimestralmente). Además hablaremos sobre los riesgos que conlleva esta empresa, entre otras características de este activo. 
+
+## **Información relevante del activo:** 
+
+- Clave de pizarra:  **(BOLSA A)**
+- Inicio de cotización:  **13 de Junio 2008 realiza su oferta pública en la BMV**
+- Número de acciones en el mercado: **590,139,742**
+- Precio actual: **40.600** (Precio al 27 de Agosto del 2021) 
+- P.E.R.(Price/earnings ratio): **17.15**
+- Cap Mercado: **23.96B**
+- Fecha próximos resultados: **30 agosto 2021**
+- Número de empleados: **534**
+- Dividendos: **2.02 por acción** 
+- Oficinas centrales: **Ciudad de México, PASEO DE LA REFORMA 255 CUAUHTEMOC ,06500, MEXICO CDMX.**
 
