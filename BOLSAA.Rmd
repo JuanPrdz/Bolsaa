@@ -176,3 +176,37 @@ plot(Bolsa)
 * GBM (2021). Enlace: https://plus.gbm.com/index.html
 * Factset (2021). Enlace: https://my.apps.factset.com/navigator/company-security/snapshot/BOLSAA-MX
 
+```{r}
+stock_series
+```
+Vemos claramente que en el 2020 hay una gran caída en el precio del activo, y esto es obviamente por la crisis economica ocasionada por la pandemia del covid-19, hubo un desplome en las bolsas mundiales, y la Bolsa Mexicana de Valores no fue la excepción, la gente ante la incertidumbre sacaba su dinero de las inversiones por lo que el activo como tal BOLSAA tuvo una evidente caída.
+
+En julio del 2019, se ve una caída en el precio, esto porque gracias a información de [Investing](https://mx.investing.com/news/stock-market-news/las-bolsas-de-valores-de-mexico-cerraron-con-caidas-el-spbmv-ipc-perdio-un-055-1899903), recopilamos que por los retrocesos en los sectores materiales, de servicios financieros y servicios de telecomunicaión impulsaron la baja en el precio de este activo. 
+
+Y también se ve reflejada la caída ocasionada por la crisis del 2008, la de las hipotecas en Estados Unidos pero que claramente afectó este activo. 
+
+
+```{r, include=FALSE, warning=FALSE}
+pib <- read.csv(file = 'pib.csv')
+
+
+plot(pib)
+
+PLOTPIB <- pib %>%
+  ggplot()+
+  geom_point(aes(ï..f, PIB), col="blue")+
+  labs(title="PIB en el tiempo de cotización del activo BOLSAA", x="Tiempo", y="Valor del PIB")
+
+```
+
+```{r, figures-side, fig.show="hold"}
+PLOTPIB
+stock_series
+```
+```{r}
+Rend <- na.omit(diff(log(na.omit(Bolsa))))
+hist(Rend, n=100, main="Histo Ren", col="blue")
+
+```
+
+
