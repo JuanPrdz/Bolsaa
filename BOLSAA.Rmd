@@ -2,8 +2,67 @@
 title: "Analisis de activo fianciero (BOLSAA)"
 author: "Iván Arellano , Juan Pablo Rodriguez , Santiago Romero"
 date: "31/8/2021"
+layout: template
 output: html_document
 ---
+# Segunda Entrega
+
+```{r,include=FALSE,warning=FALSE}
+library(ggplot2)
+library(tibble)
+library(tidyverse)
+library(kableExtra)
+library(knitr)
+library(tidyquant)
+library(quantmod)
+library(PerformanceAnalytics)
+library(tidyverse)
+library(akima)
+library(moments)
+library(lubridate)
+library(magrittr)
+library(broom)
+```
+
+
+```{r,include=FALSE,warning=FALSE}
+options("getSymbols.warning4.0"=FALSE)
+options("getSymbols.yahoo.warning"=FALSE)
+# Downloading Apple price using quantmod
+
+getSymbols(c("BOLSAA.MX"), from = '2008-01-09',
+           to = "2021-08-30",warnings = FALSE,
+           auto.assign = TRUE)
+
+stocks <- as.xts(data.frame(B = BOLSAA.MX[,"BOLSAA.MX.Adjusted"]))
+names(stocks) = c('Bolsaa')
+index(stocks) = as.Date(index(stocks))
+```
+
+
+```{r,include=FALSE,warning=FALSE}
+stock_series <- tidy(stocks) %>% 
+  
+  ggplot(aes(x=index,y=value, color=series)) +
+  labs(title = "BOLSAA",
+       
+       subtitle = "Historico total",
+       caption = " Source: Yahoo Finance") +
+  
+  xlab("Date") + ylab("Price") +
+  scale_color_manual(values = c("blue"))+
+  geom_line()
+
+```
+```{r}
+stock_series
+```
+
+
+
+
+
+# Primera Entrega 
 
 ```{r,include=FALSE}
 # Cargamos librerias
