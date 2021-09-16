@@ -115,16 +115,6 @@ plot(Bolsa)
 
 </p>
 
-
-
-## **Referencias**
-* Investing (2021). Enlace: https://mx.investing.com/equities/bolsa-mexicana-de-valores-a
-* GBM (2021). Enlace: https://plus.gbm.com/index.html
-* Factset (2021). Enlace: https://my.apps.factset.com/navigator/company-security/snapshot/BOLSAA-MX
-
-
-
-
 # Segunda Entrega
 
 ```{r,include=FALSE,warning=FALSE}
@@ -266,6 +256,28 @@ legend('topright',
        col = 2:3)
 ```
 
+Aquí podemos observar la comparativa dentro de la gráfica y la gran similitud que tuvieron en los cambios durante la última época, podríamos suponer que tienen una correlación bastante alta.
 
+### Situación Actual
+
+Tras el análisis en esta segunda entrega pudimos darnos cuenta de factores que fueron importantes en los picos presentados durante el último año que definieron el comportamiento del activo, parece ser que los más importantes fueron los siguientes:
+
+- Al analizar la gráfica, de forma general podemos hablar de que el activo en cuestión ha tenido un comportamiento negativo durante lo que llevamos del año, con un comportamiento entre 40 y 50 pesos aproximadamente y con caídas y subidas repentinas durante el año
+
+- Durante el último año, parece ser que por los precios bajos, las 15 empresas más grandes han estado recomprando sus propias acciones, lo que significa una reducción en el flujo de compra/venta de activos dentro de la Bolsa Mexicana de Valores lo que impacta en las ganancias del activo. [El ceo](https://elceo.com/mercados/wall-street-8-septiembre-2021-bmv/)
+
+- Tuvimos una subida en el precio del activo en agosto 2020 que al parecer fue porque la BMV rompió máximos históricos con en su cotización lo cual influye positivamente en el comportamiento del activo. [Sentido Común](https://www.sentidocomun.com.mx/articulo.phtml?id=99740)
+
+- Luego ocurrió una bajada en el precio del activo entre la 2da y 3er semana de octubre 2020 que, tras presentar su reporte del 3er trimestre del año, tuvo una bajada de casi 7% en el rango de tiempo ya mencionado, a pesar de su alza en ingresos (3%) y flujo operativo (4%), pero con una utilidad neta inferior (6%) que parece ser lo que mandó a la baja el precio de la acción. Aunque fue rápidamente recuperado el precio, prácticamente a como estaba en menos de una semana. [El ceo](https://elceo.com/mercados/bolsa-mexicana-valores-reporte-3t20-acciones/)
+
+- Existió después una caía fuerte y prolongada en el tiempo desde finales de diciembre a inicios de marzo del 2021, desde casi 50 pesos por acción hasta los 41, parece ser que son diversas razones entre las cuales se encontraba la incertidumbre sobre un nuevo paquete de estímulos fiscales por parte del gobierno americano por 1,900 MDD, que tenía a inversionistas cautelosos, además de la misma pandemia y la baja de precios en las acciones del índice, donde 31 de las 35 empresas operaban con pérdidas. [América economía](https://www.americaeconomia.com/economia-mercados/bolsa/bolsas-en-mexico-operan-en-rojo-por-contagio-de-covid-de-carlos-slim)
+
+- Desde inicios de marzo se observa una recuperación en el precio de la acción de Grupo BMV o BOLSAA, esto es dado al precio tan bajo que se tenía, por esto el mismo grupo decidió comenzar a recomprar sus propias acciones "en descuento" y así también fortalecerla confianza en los inversionistas y crear una ola de compra que elevaría aún más el precio, dicho y hecho. [El financiero](https://www.elfinanciero.com.mx/mercados/la-bolsa-mexicana-comprara-acciones-propias-a-partir-del-1-de-marzo/)
+
+
+## **Referencias**
+* Investing (2021). Enlace: https://mx.investing.com/equities/bolsa-mexicana-de-valores-a
+* GBM (2021). Enlace: https://plus.gbm.com/index.html
+* Factset (2021). Enlace: https://my.apps.factset.com/navigator/company-security/snapshot/BOLSAA-MX
 
 
