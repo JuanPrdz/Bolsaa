@@ -1,7 +1,7 @@
 ---
 title: "Analisis de activo fianciero (BOLSAA)"
 author: "Iván Arellano , Juan Pablo Rodriguez , Santiago Romero"
-date: "31/8/2021"
+date: "16/09/2021"
 layout: template
 output: html_document
 ---
