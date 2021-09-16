@@ -5,60 +5,6 @@ date: "31/8/2021"
 layout: template
 output: html_document
 ---
-# Segunda Entrega
-
-```{r,include=FALSE,warning=FALSE}
-library(ggplot2)
-library(tibble)
-library(tidyverse)
-library(kableExtra)
-library(knitr)
-library(tidyquant)
-library(quantmod)
-library(PerformanceAnalytics)
-library(tidyverse)
-library(akima)
-library(moments)
-library(lubridate)
-library(magrittr)
-library(broom)
-```
-
-
-```{r,include=FALSE,warning=FALSE}
-options("getSymbols.warning4.0"=FALSE)
-options("getSymbols.yahoo.warning"=FALSE)
-# Downloading Apple price using quantmod
-
-getSymbols(c("BOLSAA.MX"), from = '2008-01-09',
-           to = "2021-08-30",warnings = FALSE,
-           auto.assign = TRUE)
-
-stocks <- as.xts(data.frame(B = BOLSAA.MX[,"BOLSAA.MX.Adjusted"]))
-names(stocks) = c('Bolsaa')
-index(stocks) = as.Date(index(stocks))
-```
-
-
-```{r,include=FALSE,warning=FALSE}
-stock_series <- tidy(stocks) %>% 
-  
-  ggplot(aes(x=index,y=value, color=series)) +
-  labs(title = "BOLSAA",
-       
-       subtitle = "Historico total",
-       caption = " Source: Yahoo Finance") +
-  
-  xlab("Date") + ylab("Price") +
-  scale_color_manual(values = c("blue"))+
-  geom_line()
-
-```
-```{r}
-stock_series
-```
-
-
 
 
 
@@ -79,7 +25,7 @@ options("getSymbols.warning4.0"=FALSE)
 options("getSymbols.yahoo.warning"=FALSE)
 # Downloading Apple price using quantmod
 
-getSymbols("BOLSAA.MX", from = '2019-01-01',
+getSymbols("BOLSAA.MX", from = '2008-06-01',
            to = "2021-08-30",warnings = FALSE,
            auto.assign = TRUE)
 Bolsa <- BOLSAA.MX$BOLSAA.MX.Adjusted
@@ -176,9 +122,80 @@ plot(Bolsa)
 * GBM (2021). Enlace: https://plus.gbm.com/index.html
 * Factset (2021). Enlace: https://my.apps.factset.com/navigator/company-security/snapshot/BOLSAA-MX
 
+
+
+
+# Segunda Entrega
+
+```{r,include=FALSE,warning=FALSE}
+library(ggplot2)
+library(tibble)
+library(tidyverse)
+library(kableExtra)
+library(knitr)
+library(tidyquant)
+library(quantmod)
+library(PerformanceAnalytics)
+library(tidyverse)
+library(akima)
+library(moments)
+library(lubridate)
+library(magrittr)
+library(broom)
+library(readxl)
+```
+
+
+```{r,include=FALSE,warning=FALSE}
+options("getSymbols.warning4.0"=FALSE)
+options("getSymbols.yahoo.warning"=FALSE)
+# Downloading Apple price using quantmod
+
+getSymbols(c("BOLSAA.MX"), from = '2008-01-09',
+           to = "2021-08-30",warnings = FALSE,
+           auto.assign = TRUE)
+
+stocks <- as.xts(data.frame(B = BOLSAA.MX[,"BOLSAA.MX.Adjusted"]))
+names(stocks) = c('Bolsaa')
+index(stocks) = as.Date(index(stocks))
+```
+
+
+```{r,include=FALSE,warning=FALSE}
+stock_series <- tidy(stocks) %>% 
+  
+  ggplot(aes(x=index,y=value, color=series)) +
+  labs(title = "BOLSAA",
+       
+       subtitle = "Historico total",
+       caption = " Source: Yahoo Finance") +
+  
+  xlab("Date") + ylab("Price") +
+  scale_color_manual(values = c("blue"))+
+  geom_line()
+
+```
+
+
 ```{r}
 stock_series
 ```
+
+```{r}
+Rend <- na.omit(diff(log(na.omit(Bolsa))))
+plot(Rend)
+```
+
+
+
+```{r}
+
+hist(Rend, n=100, main="Histo Ren", col="blue")
+
+```
+
+
+
 Vemos claramente que en el 2020 hay una gran caída en el precio del activo, y esto es obviamente por la crisis economica ocasionada por la pandemia del covid-19, hubo un desplome en las bolsas mundiales, y la Bolsa Mexicana de Valores no fue la excepción, la gente ante la incertidumbre sacaba su dinero de las inversiones por lo que el activo como tal BOLSAA tuvo una evidente caída.
 
 En julio del 2019, se ve una caída en el precio, esto porque gracias a información de [Investing](https://mx.investing.com/news/stock-market-news/las-bolsas-de-valores-de-mexico-cerraron-con-caidas-el-spbmv-ipc-perdio-un-055-1899903), recopilamos que por los retrocesos en los sectores materiales, de servicios financieros y servicios de telecomunicaión impulsaron la baja en el precio de este activo. 
@@ -188,9 +205,6 @@ Y también se ve reflejada la caída ocasionada por la crisis del 2008, la de la
 
 ```{r, include=FALSE, warning=FALSE}
 pib <- read.csv(file = 'pib.csv')
-
-
-plot(pib)
 
 PLOTPIB <- pib %>%
   ggplot()+
@@ -203,10 +217,55 @@ PLOTPIB <- pib %>%
 PLOTPIB
 stock_series
 ```
-```{r}
+
+
+```{r,include=FALSE,warning=FALSE}
+# Vamos a calcular los rendimientos de cada año para hacer una comparación anual 
 Rend <- na.omit(diff(log(na.omit(Bolsa))))
-hist(Rend, n=100, main="Histo Ren", col="blue")
+anos <- c(2008,2009,2010,2011,2012,2013,2014,2015,
+          2016,2017,2018,2019,2020)
+a <-c()
+for (i in 1:length(anos)) {
+  prom <- mean(Rend[i])
+  print(prom)
+  a[i] = prom
+}
+
+b <- data.frame(x = anos , y = a)
+```
+
+
+
+
+```{r,include=FALSE,warning=FALSE}
+Crecieminto <- read_excel(path = 'Crecimiento_PIB.xlsx',skip = 1)
+
+Crecieminto <-  Crecieminto %>% 
+  mutate(
+    `Bolsaa` = b$y
+  )
 
 ```
+
+
+```{r}
+plot(Crecieminto$Año,
+     Crecieminto$Cambio,
+     type = "l",
+     col = 2,
+     ylim = c(- 0.3, 0.3),
+     xlab = "Year",
+     ylab = "Values")
+lines(Crecieminto$Año,
+      Crecieminto$Bolsaa,
+      type = "l",
+      col = 3)
+legend('topright',
+       c('PIB','BOLSAA'),
+        lty = 1,
+       col = 2:3)
+```
+
+
 
 
