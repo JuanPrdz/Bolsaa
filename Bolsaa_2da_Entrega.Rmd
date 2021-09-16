@@ -1,0 +1,10 @@
+---
+title: "Bolsaa_2da_Entrega"
+author: "Iván Arellano"
+date: "14/9/2021"
+output: html_document
+---
+
+
+[Primera entrega](BOLSAA.Rmd)
+
