@@ -281,3 +281,40 @@ Tras el análisis en esta segunda entrega pudimos darnos cuenta de factores que 
 * Factset (2021). Enlace: https://my.apps.factset.com/navigator/company-security/snapshot/BOLSAA-MX
 
 
+# Tercera Entrega ----
+
+```{r,include=FALSE}
+
+library(ggplot2)
+library(tibble)
+library(tidyverse)
+library(kableExtra)
+library(knitr)
+library(tidyquant)
+library(quantmod)
+library(PerformanceAnalytics)
+library(tidyverse)
+library(akima)
+library(moments)
+library(lubridate)
+library(magrittr)
+library(broom)
+library(readxl)
+```
+
+```{r}
+claves <- c("BOLSAA.MX", "^MXX")
+getSymbols(claves, from = "2008-01-09", to=today(), warnings=FALSE)
+list <- lapply(c("BOLSAA.MX", "MXX"), function(x) Cl(get(x))) #Se quita el claves por el contenido por ^
+precio <- (do.call(merge, list))
+names(precio) <- claves
+```
+
+```{r}
+rend_diario <- na.omit(diff(log(precio)))
+var_diaria <- rend_diario**2
+rend_anual <- na.omit()
+var_anual <- 
+```
+
+
