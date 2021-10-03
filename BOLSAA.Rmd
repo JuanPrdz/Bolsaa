@@ -310,11 +310,225 @@ precio <- (do.call(merge, list))
 names(precio) <- claves
 ```
 
+
 ```{r}
-rend_diario <- na.omit(diff(log(precio)))
-var_diaria <- rend_diario**2
-rend_anual <- na.omit()
-var_anual <- 
+Rend <- na.omit(diff(log(na.omit(na.omit(precio[,1])))))
+
+mu_diaria <- mean(Rend)
+mu_diaria
+mu_anual <- mu_diaria*252
+mu_anual
+
+sigma_diaria <- sd(Rend)
+sigma_anual <- sigma_diaria*sqrt(252)
+sigma_diaria
+sigma_anual
+```
+```{r}
+Tabla <- tibble(RenD=mu_diaria, RenA=mu_anual, VolD=sigma_diaria, VolA=sigma_anual)
+Tabla
+```
+
+```{r}
+kable(Tabla, caption="<center>**Información del Activo**", align=c("c","c","c"))%>%
+  kable_classic(full_width=FALSE, html_font="Cambria")%>%
+  row_spec(0,bold=T, color="red")%>%
+  column_spec(1)
+```
+
+## Prueba de normalidad
+
+```{r}
+hist(Rend, n=100, main="Histograma Rendimiento", col="blue")
+```
+
+$H_0$: Normalidad en la variable
+$H_a$: No hay normalidad en la variable
+
+```{r}
+jb_test <- jarque.test(as.numeric(Rend))
+jb_test
+```
+Para interpretar la prueba debemos usar el valor del estadístico JB vale 5655.1, la regla de comparación para la prueba de hipótesis nos dice que si el valor de JB que obtengamos es mayor a 9.2130 debemos de rechazar $H_0$. 
+
+Para nuestro activo de BOLSAA.MX decimos que es necesario rechazar $H_0$, concluimos que los datos no son normales. 
+
+```{r}
+JB <- jb_test[["statistic"]]
+JB
+```
+
+No hay normalidad porque el JB es de `r JB`.
+
+### Prueba de rendimiento cero
+
+La media de los rendimientos diarios es muy pequeña, por lo que haremos una prueba de hipótesis para determinar si es o no estadísticamente igual a cero.
+
+$H_0$: La media de la variable es cero
+$H_a$: La media de la variable es diferente de cero
+
+Criterio de decisión. Si el estadístico es mayor a 2.3295 rechazamos $H_0$.
+
+```{r}
+Prueba_t <- t.test(as.numeric(Rend))
+ET <- Prueba_t[["statistic"]]
+ET
+```
+
+Como el estadístico es `r ET`, no rechazamos nuestra hipótesis nula, por lo que la media de los rendimientos de BOLSAA.mx es cero.
+
+## Ecuación ds para el periodo 2020
+
+Usemos los datos del 2020, para construir la ecuación ds que describe el comportamiento del precio
+$$dS=\mu*S*dt+\sigma*S*dW$$
+```{r}
+mu_d <- mean(Rend[year(Rend)==2020])
+sigma_d <- sd(Rend[year(Rend)==2020])
+mu_d
+sigma_d
+```
+Hcemos la simulación para 10, 20 y 40 días
+```{r}
+n <- length(na.omit(precio[,1]))
+So <- as.numeric(na.omit(precio[n,1]))
+dt <- data_frame(10,20,40)
+epsilon <- rnorm(10000)
+dss <- 0
+for(i in length(dt)){
+   dss <- data.frame(
+  mu_d*So*as.numeric(dt[i]) + sigma_d*So*epsilon*sqrt(as.numeric(dt[i])))
+}
+dss
+ds <- mu_d*So*dt + sigma_d*So*epsilon*sqrt(dt)
+length(dt)
+```
+
+```{r}
+n <- length(na.omit(precio[,1]))
+So <- as.numeric(na.omit(precio[n,1]))
+dt <- data_frame(10,20,40)
+epsilon <- rnorm(10000)
+dss <- 0
+
+dss <- data.frame(mu_d*So*as.numeric(dt[1]) + sigma_d*So*epsilon*sqrt(as.numeric(dt[1])))
+
+dss
+ds <- mu_d*So*dt + sigma_d*So*epsilon*sqrt(dt)
+length(dt)
 ```
 
 
+```{r}
+Esperado_Cambio <- mean(ds)
+Varianza_Cambio <- var(ds)
+Des_Cambio <- sqrt(Varianza_Cambio)
+Esperado_Cambio
+Varianza_Cambio
+```
+
+```{r}
+P_Esperado <- So+Esperado_Cambio
+P_Esperado
+```
+
+```{r}
+Z <- qnorm(0.025)
+P_Esperado-Z*Des_Cambio
+P_Esperado+Z*Des_Cambio
+```
+
+
+#### Ahora con lnSt ----
+
+```{r}
+mu_a <- mu_d*252
+sigma_a <- sigma_d*sqrt(252)
+mu_d
+sigma_d
+```
+```{r}
+n <- length(na.omit(precio[,1]))
+So <- as.numeric(na.omit(precio[n,1]))
+dt_3m <- 3
+dt_6m <- 6
+dt_9m <- 9
+dt_12m <- 12
+epsilon <- rnorm(10000)
+ds_3m <- mu_d*So*dt_3m + sigma_d*So*epsilon*sqrt(dt_3m)
+ds_6m <- mu_d*So*dt_6m + sigma_d*So*epsilon*sqrt(dt_6m)
+ds_9m <- mu_d*So*dt_9m + sigma_d*So*epsilon*sqrt(dt_9m)
+```
+
+```{r}
+Esperado_Cambio3m <- mean(ds_3m)
+Varianza_Cambio3m <- var(ds_3m)
+Des_Cambio3m <- sqrt(Varianza_Cambio3m)
+
+Esperado_Cambio6m <- mean(ds_6m)
+Varianza_Cambio6m <- var(ds_6m)
+Des_Cambio6m <- sqrt(Varianza_Cambio6m)
+
+Esperado_Cambio9m <- mean(ds_9m)
+Varianza_Cambio9m <- var(ds_9m)
+Des_Cambio9m <- sqrt(Varianza_Cambio9m)
+
+Esperado_Cambio3m
+Varianza_Cambio3m
+Esperado_Cambio6m
+Varianza_Cambio6m
+Esperado_Cambio9m
+Varianza_Cambio9m
+```
+```{r}
+P_Esperado3m <- So+Esperado_Cambio3m
+P_Esperado3m
+
+P_Esperado6m <- So+Esperado_Cambio6m
+P_Esperado6m
+
+P_Esperado9m <- So+Esperado_Cambio9m
+P_Esperado9m
+```
+
+```{r}
+Z3m <- qnorm(0.025)
+P_Esperado3m-Z3m*Des_Cambio3m
+P_Esperado3m+Z3m*Des_Cambio3m
+
+Z6m <- qnorm(0.025)
+P_Esperado6m-Z6m*Des_Cambio6m
+P_Esperado6m+Z6m*Des_Cambio6m
+
+Z9m <- qnorm(0.025)
+P_Esperado9m-Z9m*Des_Cambio9m
+P_Esperado9m+Z9m*Des_Cambio9m
+```
+
+```{r}
+Intervalo3m <- tibble(LimiteInf=P_Esperado3m+Z3m*Des_Cambio3m, LimiteSUp=P_Esperado3m-Z3m*Des_Cambio3m)
+
+kable(Intervalo3m, caption="<center>3 meses 95% de confianza", align=c("c","c","c"))%>%
+  kable_classic(full_width=FALSE, html_font="Cambria")%>%
+  row_spec(0,bold=T, color="red")%>%
+  column_spec(1)
+```
+
+```{r}
+Intervalo6m <- tibble(LimiteInf=P_Esperado6m+Z6m*Des_Cambio6m, LimiteSUp=P_Esperado6m-Z6m*Des_Cambio6m)
+
+kable(Intervalo6m, caption="<center>6 meses 95% de confianza", align=c("c","c","c"))%>%
+  kable_classic(full_width=FALSE, html_font="Cambria")%>%
+  row_spec(0,bold=T, color="red")%>%
+  column_spec(1)
+```
+
+```{r}
+Intervalo9m <- tibble(LimiteInf=P_Esperado9m+Z9m*Des_Cambio9m, LimiteSUp=P_Esperado9m-Z9m*Des_Cambio9m)
+
+kable(Intervalo9m, caption="<center>9 meses 95% de confianza", align=c("c","c","c"))%>%
+  kable_classic(full_width=FALSE, html_font="Cambria")%>%
+  row_spec(0,bold=T, color="red")%>%
+  column_spec(1)
+```
+
+#### Discusión sobre lo que dice la teoría en relación con la normalidad y las implicaciones del modelo teórico sobre los datos reales. ----
