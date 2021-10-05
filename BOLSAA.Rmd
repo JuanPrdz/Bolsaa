@@ -281,3 +281,280 @@ Tras el análisis en esta segunda entrega pudimos darnos cuenta de factores que 
 * Factset (2021). Enlace: https://my.apps.factset.com/navigator/company-security/snapshot/BOLSAA-MX
 
 
+# Tercera Entrega ----
+
+```{r,include=FALSE}
+
+library(ggplot2)
+library(tibble)
+library(tidyverse)
+library(kableExtra)
+library(knitr)
+library(tidyquant)
+library(quantmod)
+library(PerformanceAnalytics)
+library(tidyverse)
+library(akima)
+library(moments)
+library(lubridate)
+library(magrittr)
+library(broom)
+library(readxl)
+```
+
+```{r,include=FALSE}
+claves <- c("BOLSAA.MX", "^MXX")
+getSymbols(claves, from = "2008-06-01", to=today(), warnings=FALSE)
+list <- lapply(c("BOLSAA.MX", "MXX"), function(x) Cl(get(x))) #Se quita el claves por el contenido por ^
+precio <- (do.call(merge, list))
+names(precio) <- claves
+```
+
+
+```{r,include=FALSE}
+Rend <- na.omit(diff(log(na.omit(na.omit(precio[,1])))))
+
+mu_diaria <- mean(Rend)
+mu_diaria
+mu_anual <- mu_diaria*252
+mu_anual
+
+sigma_diaria <- sd(Rend)
+sigma_anual <- sigma_diaria*sqrt(252)
+sigma_diaria
+sigma_anual
+```
+
+**1) Calculamos el rendimiento y la volatilidad anual**
+```{r,include=FALSE}
+Tabla <- tibble(RenD=mu_diaria, RenA=mu_anual, VolD=sigma_diaria, VolA=sigma_anual)
+Tabla
+```
+
+
+```{r}
+kable(Tabla, caption="<center>**Información del Activo**", align=c("c","c","c"))%>%
+  kable_classic(full_width=FALSE, html_font="Cambria")%>%
+  row_spec(0,bold=T, color="red")%>%
+  column_spec(1)
+```
+Calculamos los rendimientos Diarios y Anuales asi como la volatilidad a partir de los historicos del activo de BOLSAA.MX 
+
+**2)Prueba de normalidad**
+
+```{r}
+hist(Rend, n=100, main="Histograma Rendimiento", col="blue")
+```
+
+$H_0$: Normalidad en la variable
+$H_a$: No hay normalidad en la variable
+
+
+```{r}
+jb_test <- jarque.test(as.numeric(Rend))
+jb_test
+```
+Para interpretar la prueba debemos usar el valor del estadístico JB vale 5655.1, la regla de comparación para la prueba de hipótesis nos dice que si el valor de JB que obtengamos es mayor a 9.2130 debemos de rechazar $H_0$. 
+
+Para nuestro activo de BOLSAA.MX decimos que es necesario rechazar $H_0$, concluimos que los datos no son normales. 
+
+```{r}
+JB <- jb_test[["statistic"]]
+JB
+```
+
+No hay normalidad porque el JB es de `r JB`.
+
+### Prueba de rendimiento cero
+
+La media de los rendimientos diarios es muy pequeña, por lo que haremos una prueba de hipótesis para determinar si es o no estadísticamente igual a cero.
+
+$H_0$: La media de la variable es cero
+$H_a$: La media de la variable es diferente de cero
+
+Criterio de decisión. Si el estadístico es mayor a 2.3295 rechazamos $H_0$.
+
+```{r}
+Prueba_t <- t.test(as.numeric(Rend))
+ET <- Prueba_t[["statistic"]]
+ET
+```
+
+Como el estadístico es `r ET`, no rechazamos nuestra hipótesis nula, por lo que la media de los rendimientos de BOLSAA.mx es cero.
+
+## Ecuación ds para el periodo 2020
+
+Usemos los datos del 2020, para construir la ecuación ds que describe el comportamiento del precio
+$$dS=\mu*S*dt+\sigma*S*dW$$
+```{r,include=FALSE}
+mu_d <- mean(Rend[year(Rend)==2020])
+sigma_d <- sd(Rend[year(Rend)==2020])
+mu_d
+sigma_d
+```
+Hcemos la simulación para 10, 20 y 40 días
+```{r,include=FALSE}
+n <- length(na.omit(precio[,1]))
+So <- as.numeric(na.omit(precio[n-250,1]))
+dt <- data_frame(10,20,40)
+epsilon <- rnorm(10000)
+dss = data.frame()
+nombres = c('D10','D20','D40')
+for(i in 1:length(dt)){
+  assign(nombres[i],mu_d*So*as.numeric(dt[i]) +sigma_d*So*epsilon*sqrt(as.numeric(dt[i])))
+}
+
+dss
+ds <- mu_d*So*dt + sigma_d*So*epsilon*sqrt(dt)
+# length(dt)
+```
+
+
+
+```{r,include=FALSE}
+# 10 Dias 
+Esperado_Cambio_10 <- mean(D10)
+Varianza_Cambio_10 <- var(D10)
+Des_Cambio_10 <- sqrt(Varianza_Cambio_10)
+P_Esperado_10 <- So+Esperado_Cambio_10
+Z_10 <- qnorm(0.025)
+P_Esperado_10-Z_10*Des_Cambio_10
+P_Esperado_10+Z_10*Des_Cambio_10
+
+# 20 Dias 
+Esperado_Cambio_20 <- mean(D20)
+Varianza_Cambio_20 <- var(D20)
+Des_Cambio_20 <- sqrt(Varianza_Cambio_20)
+P_Esperado_20 <- So+Esperado_Cambio_20
+Z_20 <- qnorm(0.025)
+P_Esperado_20-Z_20*Des_Cambio_20
+P_Esperado_20+Z_20*Des_Cambio_20
+
+# 40 Dias 
+Esperado_Cambio_40 <- mean(D40)
+Varianza_Cambio_40 <- var(D40)
+Des_Cambio_40 <- sqrt(Varianza_Cambio_40)
+P_Esperado_40 <- So+Esperado_Cambio_40
+Z_40 <- qnorm(0.025)
+P_Esperado_40-Z_40*Des_Cambio_40
+P_Esperado_40+Z_40*Des_Cambio_40
+```
+
+```{r}
+Intervalo10D <- tibble(LimiteInf_10D=P_Esperado_10+Z_10*Des_Cambio_10,                           LimiteSUp_10D=P_Esperado_10-Z_10*Des_Cambio_10,
+                       LimiteInf_20D=P_Esperado_20+Z_20*Des_Cambio_20,                           LimiteSUp_20D=P_Esperado_20-Z_20*Des_Cambio_20,
+                       LimiteInf_40D=P_Esperado_40+Z_40*Des_Cambio_40,                           LimiteSUp_40D=P_Esperado_40-Z_40*Des_Cambio_40)
+
+kable(Intervalo10D, caption="<center> 95% de confianza", align=c("c","c","c"))%>%
+  kable_classic(full_width=FALSE, html_font="Cambria")%>%
+  row_spec(0,bold=T, color="blue")%>%
+  column_spec(1)
+```
+
+
+#### Ahora con lnSt ----
+
+```{r,include=FALSE}
+mu_a <- mu_d*252
+sigma_a <- sigma_d*sqrt(252)
+mu_d
+sigma_d
+```
+```{r,include=FALSE}
+n <- length(na.omit(precio[,1]))
+So <- as.numeric(na.omit(precio[n-250,1]))
+dt_3m <- 3
+dt_6m <- 6
+dt_9m <- 9
+dt_12m <- 12
+epsilon <- rnorm(10000)
+ds_3m <- mu_d*So*dt_3m + sigma_d*So*epsilon*sqrt(dt_3m)
+ds_6m <- mu_d*So*dt_6m + sigma_d*So*epsilon*sqrt(dt_6m)
+ds_9m <- mu_d*So*dt_9m + sigma_d*So*epsilon*sqrt(dt_9m)
+ds_12m <- mu_d*So*dt_12m + sigma_d*So*epsilon*sqrt(dt_12m)
+```
+
+```{r,include=FALSE}
+Esperado_Cambio3m <- mean(ds_3m)
+Varianza_Cambio3m <- var(ds_3m)
+Des_Cambio3m <- sqrt(Varianza_Cambio3m)
+
+Esperado_Cambio6m <- mean(ds_6m)
+Varianza_Cambio6m <- var(ds_6m)
+Des_Cambio6m <- sqrt(Varianza_Cambio6m)
+
+Esperado_Cambio9m <- mean(ds_9m)
+Varianza_Cambio9m <- var(ds_9m)
+Des_Cambio9m <- sqrt(Varianza_Cambio9m)
+
+Esperado_Cambio12m <- mean(ds_12m)
+Varianza_Cambio12m <- var(ds_12m)
+Des_Cambio12m <- sqrt(Varianza_Cambio12m)
+
+Esperado_Cambio3m
+Varianza_Cambio3m
+Esperado_Cambio6m
+Varianza_Cambio6m
+Esperado_Cambio9m
+Varianza_Cambio9m
+Esperado_Cambio12m
+Varianza_Cambio12m
+
+```
+```{r,include=FALSE}
+P_Esperado3m <- So+Esperado_Cambio3m
+P_Esperado3m
+
+P_Esperado6m <- So+Esperado_Cambio6m
+P_Esperado6m
+
+P_Esperado9m <- So+Esperado_Cambio9m
+P_Esperado9m
+
+P_Esperado12m <- So+Esperado_Cambio12m
+P_Esperado12m
+```
+
+```{r,include=FALSE}
+Z3m <- qnorm(0.025)
+P_Esperado3m-Z3m*Des_Cambio3m
+P_Esperado3m+Z3m*Des_Cambio3m
+
+Z6m <- qnorm(0.025)
+P_Esperado6m-Z6m*Des_Cambio6m
+P_Esperado6m+Z6m*Des_Cambio6m
+
+Z9m <- qnorm(0.025)
+P_Esperado9m-Z9m*Des_Cambio9m
+P_Esperado9m+Z9m*Des_Cambio9m
+
+Z12m <- qnorm(0.025)
+P_Esperado12m-Z12m*Des_Cambio12m
+P_Esperado12m+Z12m*Des_Cambio12m
+```
+
+```{r}
+Intervalo10D <- tibble(LimiteInf_3M=P_Esperado3m+Z3m*Des_Cambio3m,                               LimiteSUp_3M=P_Esperado3m-Z3m*Des_Cambio3m,
+                       LimiteInf_6M=P_Esperado6m+Z6m*Des_Cambio6m,                               LimiteSUp_6M=P_Esperado6m-Z6m*Des_Cambio6m,
+                       LimiteInf_9M=P_Esperado9m+Z9m*Des_Cambio9m,                               LimiteSUp_9M=P_Esperado9m-Z9m*Des_Cambio9m,
+                       LimiteInf_12M=P_Esperado12m+Z12m*Des_Cambio12m,                           LimiteSUp_12M=P_Esperado12m-Z12m*Des_Cambio12m)
+
+kable(Intervalo10D, caption="<center> 95% de confianza", align=c("c","c","c"))%>%
+  kable_classic(full_width=FALSE, html_font="Cambria")%>%
+  row_spec(0,bold=T, color="blue")%>%
+  column_spec(1)
+```
+
+
+
+#### Discusión sobre lo que dice la teoría en relación con la normalidad y las implicaciones del modelo teórico sobre los datos reales. ----
+
+Nuestra proyección para el precio esperado dentro de 10 días a partir del (2020-09-21) era de 45.36628, sin embargo, el histórico muestra la realidad de 48.29, esto manteniéndose dentro del intervalo de confianza que era de 37.08063-53.65193
+
+Nuestra proyección a un año es de 45.35874, sin embargo, el histórico muestra la realidad de 40.11, esto manteniéndose dentro del intervalo de confianza que era de 36.3291- 54.38837
+
+Aquí vemos que en la teoría si aplicó a la realidad, claro que hay un desfase en el precio esperado, bien sabemos que no podemos ver el futuro, pero nos ha sorprendido que si se mantiene dentro del intervalo de confianza, para todos los casos y le vemos una gran utilidad a estos métodos de predicción 
+
+
+
+
