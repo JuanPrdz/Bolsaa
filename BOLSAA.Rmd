@@ -568,7 +568,7 @@ library(readr)
 library(tidyverse)
 ```
 
-```{r}
+```{r,include=FALSE}
 datos <- new.env()
 clave <- "BOLSAA.MX"
 getSymbols(clave, from="2016-01-01", to=today(), warnings=FALSE, env=datos)
@@ -577,23 +577,23 @@ precio <- activo[,6]
 
 rend_activo <- na.omit(diff(log(na.omit(precio))))
 ```
-
-```{r}
+Calculamos los rendimientos diarios, con la diferencia logaritmica entre los pecios del activo en el cierre ajustado 
+```{r,include=FALSE}
 getSymbols("^MXX",  from="2016-01-01", to=today(), warnings = FALSE)
 rend_mercado <- na.omit(diff(log(na.omit(MXX$MXX.Adjusted))))
 ```
-
+Mostramos la gráfica de la correlación
 ```{r,echo=FALSE}
 datos_corre <- merge.xts(rend_activo, rend_mercado)
 names(datos_corre) <- c(clave, "IPC")
 chart.Correlation(na.omit(datos_corre))
 ```
 
-```{r}
+```{r,include=FALSE}
 Emisoras <- read.csv("Emisoras_Completo2.csv")
 ```
-
-```{r}
+Descargamos la información de todos los activos que cotizan en BMV, para poder compararlos vs nuestro activo de estudio
+```{r,include=FALSE}
 lista <- as.matrix(Emisoras)
 n <- nrow(lista)
 datos2 <- new.env()
@@ -613,8 +613,8 @@ for (i in 1:n) {
   Resultados[i,2] <- corre
 }
 ```
-
-```{r}
+mostramos aquellos que tienen mayor correlación vs BOLSAA
+```{r,echo=FALSE}
 mas_correlacion <- arrange(Resultados, -V2)[2:6,]
 mas_correlacion
 ```
@@ -635,7 +635,7 @@ Es una sociedad financiera que, a través de sus subsidiarias, proporciona servi
 Grupo Financiero Banorte, S.A.B de C.V (Gfnorte.mx):
 Conocido como Banorte e Ixe, es una institución financiera y bancaria mexicana, con sede en Monterrey, Nuevo León. Es uno de los cuatro bancos más grandes de México, en términos de activos y préstamos, y el administrador más largo de afores.
 
-```{r}
+```{r,echo=FALSE}
 claves_correlacion <- c('BOLSAA.MX','RA.MX','AMX','SITESB-1.MX','GFINBURO.MX','GFNORTEO.MX',"^MXX")
 getSymbols(claves_correlacion, from = "2016-01-01", to=today(), warnings=FALSE)
 lista_corre <- lapply(c('BOLSAA.MX','RA.MX','AMX','SITESB-1.MX','GFINBURO.MX','GFNORTEO.MX',
@@ -646,12 +646,12 @@ plot(Rend_activos_IPC)
 ```
 Para una mejor visualización, los proyectaremos en individual. 
 
-```{r}
+```{r,include=FALSE}
 library(ggplot2)
 library(patchwork)
 ```
 
-```{r}
+```{r,include=FALSE}
 Bolsaa <- ggplot(Rend_activos_IPC) +
   geom_line(aes(index(Rend_activos_IPC), Rend_activos_IPC$BOLSAA.MX.Close)) +
   xlab("fecha")+
