@@ -85,7 +85,7 @@ La [Bolsa Mexicana de Valores SAB de CV](https://www.bmv.com.mx/es/Grupo_BMV') o
 
 
 ## **Precios Historicos**
-```{r,echo=FALSE}
+```{r,echo=FALSE,results="markup"}
 plot(Bolsa)
 ```
 
@@ -167,18 +167,18 @@ stock_series <- tidy(stocks) %>%
 ```
 
 
-```{r}
+```{r,results="markup"}
 stock_series
 ```
 
-```{r}
+```{r,results="markup",echo=FALSE}
 Rend <- na.omit(diff(log(na.omit(Bolsa))))
 plot(Rend)
 ```
 
 
 
-```{r}
+```{r,results="markup",echo=FALSE}
 
 hist(Rend, n=100, main="Histo Ren", col="blue")
 
@@ -203,7 +203,7 @@ PLOTPIB <- pib %>%
 
 ```
 
-```{r, figures-side, fig.show="hold"}
+```{r, figures-side, fig.show="hold",echo=FALSE}
 PLOTPIB
 stock_series
 ```
@@ -238,7 +238,7 @@ Crecieminto <-  Crecieminto %>%
 ```
 
 
-```{r}
+```{r,echo=FALSE}
 plot(Crecieminto$Año,
      Crecieminto$Cambio,
      type = "l",
@@ -332,7 +332,7 @@ Tabla
 ```
 
 
-```{r}
+```{r,echo=FALSE}
 kable(Tabla, caption="<center>**Información del Activo**", align=c("c","c","c"))%>%
   kable_classic(full_width=FALSE, html_font="Cambria")%>%
   row_spec(0,bold=T, color="red")%>%
@@ -342,7 +342,7 @@ Calculamos los rendimientos Diarios y Anuales asi como la volatilidad a partir d
 
 **2)Prueba de normalidad**
 
-```{r}
+```{r,echo=FALSE}
 hist(Rend, n=100, main="Histograma Rendimiento", col="blue")
 ```
 
@@ -350,7 +350,7 @@ $H_0$: Normalidad en la variable
 $H_a$: No hay normalidad en la variable
 
 
-```{r}
+```{r,echo=FALSE}
 jb_test <- jarque.test(as.numeric(Rend))
 jb_test
 ```
@@ -358,7 +358,7 @@ Para interpretar la prueba debemos usar el valor del estadístico JB vale 5655.1
 
 Para nuestro activo de BOLSAA.MX decimos que es necesario rechazar $H_0$, concluimos que los datos no son normales. 
 
-```{r}
+```{r,echo=FALSE}
 JB <- jb_test[["statistic"]]
 JB
 ```
@@ -374,7 +374,7 @@ $H_a$: La media de la variable es diferente de cero
 
 Criterio de decisión. Si el estadístico es mayor a 2.3295 rechazamos $H_0$.
 
-```{r}
+```{r,echo=FALSE}
 Prueba_t <- t.test(as.numeric(Rend))
 ET <- Prueba_t[["statistic"]]
 ET
@@ -440,7 +440,7 @@ P_Esperado_40-Z_40*Des_Cambio_40
 P_Esperado_40+Z_40*Des_Cambio_40
 ```
 
-```{r}
+```{r,echo=FALSE}
 Intervalo10D <- tibble(LimiteInf_10D=P_Esperado_10+Z_10*Des_Cambio_10,                           LimiteSUp_10D=P_Esperado_10-Z_10*Des_Cambio_10,
                        LimiteInf_20D=P_Esperado_20+Z_20*Des_Cambio_20,                           LimiteSUp_20D=P_Esperado_20-Z_20*Des_Cambio_20,
                        LimiteInf_40D=P_Esperado_40+Z_40*Des_Cambio_40,                           LimiteSUp_40D=P_Esperado_40-Z_40*Des_Cambio_40)
@@ -533,7 +533,7 @@ P_Esperado12m-Z12m*Des_Cambio12m
 P_Esperado12m+Z12m*Des_Cambio12m
 ```
 
-```{r}
+```{r,results="markup",echo=FALSE}
 Intervalo10D <- tibble(LimiteInf_3M=P_Esperado3m+Z3m*Des_Cambio3m,                               LimiteSUp_3M=P_Esperado3m-Z3m*Des_Cambio3m,
                        LimiteInf_6M=P_Esperado6m+Z6m*Des_Cambio6m,                               LimiteSUp_6M=P_Esperado6m-Z6m*Des_Cambio6m,
                        LimiteInf_9M=P_Esperado9m+Z9m*Des_Cambio9m,                               LimiteSUp_9M=P_Esperado9m-Z9m*Des_Cambio9m,
