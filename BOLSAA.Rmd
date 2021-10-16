@@ -558,6 +558,7 @@ Aquí vemos que en la teoría si aplicó a la realidad, claro que hay un desfase
 
 # Cuarta Entrega -----
 
+En la primera parte de esta cuarta entrega empezamos por calcular la correlación que existe entre nuestro activo BOLSAA y otros activos, así como el INPC, o sea el mercado. La correlación sé define como una medida estadística que nos dice que tanto dos variables están relacionadas linealmente, nos será de utilidad para encontrar que tan similar son los movimientos entre los activos a analizar.
 
 ```{r setup, include=FALSE}
 library(PerformanceAnalytics)
@@ -582,7 +583,7 @@ getSymbols("^MXX",  from="2016-01-01", to=today(), warnings = FALSE)
 rend_mercado <- na.omit(diff(log(na.omit(MXX$MXX.Adjusted))))
 ```
 
-```{r}
+```{r,echo=FALSE}
 datos_corre <- merge.xts(rend_activo, rend_mercado)
 names(datos_corre) <- c(clave, "IPC")
 chart.Correlation(na.omit(datos_corre))
@@ -615,10 +616,24 @@ for (i in 1:n) {
 
 ```{r}
 mas_correlacion <- arrange(Resultados, -V2)[2:6,]
-menos_correlacion <- arrange(Resultados, V2)[1:5,]
 mas_correlacion
-menos_correlacion
 ```
+Encontramos que los activos con mayor correlación son los siguientes:
+
+Regional SA de Cv (Ra.mx):
+Con sede en San Pedro en Nuevo León, BanRegio Grupo Financiero es una institución dedicada al desarrollo y comercialización de productos financieros.
+
+América Móvil (Amx.mx)
+Es una empresa multinacional mexicana de telecomunicaciones con sede en la Ciudad de México, México. Tiene presencia en 18 países en América y 8 en Europa, con más de 277 millones de usuarios.
+
+Telesites (Sitesb-1.mx)
+Es una empresa mexicana dedicada a construir, instalar, mantener, operar y comercializar diversos tipos de sitios –torres y estructuras de soporte, así como espacios físicos y demás elementos no electrónicos, para la instalación de redes de servicios para el sector de telecomunicaciones.
+
+Grupo financiero Inbursa (Gfinburo.mx)
+Es una sociedad financiera que, a través de sus subsidiarias, proporciona servicios de banca y servicios relacionados en México. La empresa cuenta con líneas de operaciones en fondos de inversión, seguros generales, seguros de automóviles, hipotecas, seguro de salud, fondos de jubilación y banca comercial.
+
+Grupo Financiero Banorte, S.A.B de C.V (Gfnorte.mx):
+Conocido como Banorte e Ixe, es una institución financiera y bancaria mexicana, con sede en Monterrey, Nuevo León. Es uno de los cuatro bancos más grandes de México, en términos de activos y préstamos, y el administrador más largo de afores.
 
 ```{r}
 claves_correlacion <- c('BOLSAA.MX','RA.MX','AMX','SITESB-1.MX','GFINBURO.MX','GFNORTEO.MX',"^MXX")
@@ -630,3 +645,60 @@ Rend_activos_IPC <- na.omit(diff(log(na.omit(precio_corre))))
 plot(Rend_activos_IPC)
 ```
 Para una mejor visualización, los proyectaremos en individual. 
+
+```{r}
+library(ggplot2)
+library(patchwork)
+```
+
+```{r}
+Bolsaa <- ggplot(Rend_activos_IPC) +
+  geom_line(aes(index(Rend_activos_IPC), Rend_activos_IPC$BOLSAA.MX.Close)) +
+  xlab("fecha")+
+  ylab("Rend")+
+  ggtitle("BOLSAA") #BMV
+
+RA <- ggplot(Rend_activos_IPC) +
+  geom_line(aes(index(Rend_activos_IPC), Rend_activos_IPC$RA.MX.Close)) +
+  xlab("fecha")+
+  ylab("Rend")+
+  ggtitle("RA") #BANREGIO
+
+AMX <- ggplot(Rend_activos_IPC) +
+  geom_line(aes(index(Rend_activos_IPC), Rend_activos_IPC$AMX.Close))+
+  xlab("fecha")+
+  ylab("Rend")+
+  ggtitle("AMX") #
+
+SITESS <- ggplot(Rend_activos_IPC) +
+  geom_line(aes(index(Rend_activos_IPC), Rend_activos_IPC$SITESB.1.MX.Close))+
+  xlab("fecha")+
+  ylab("Rend")+
+  ggtitle("SITESB")
+
+GFINBURO <- ggplot(Rend_activos_IPC) +
+  geom_line(aes(index(Rend_activos_IPC), Rend_activos_IPC$GFINBURO.MX.Close))+
+  xlab("fecha")+
+  ylab("Rend")+
+  ggtitle("GFINBURO")
+
+GFNORTEO <- ggplot(Rend_activos_IPC) +
+  geom_line(aes(index(Rend_activos_IPC), Rend_activos_IPC$GFNORTEO.MX.Close))+
+  xlab("fecha")+
+  ylab("Rend")+
+  ggtitle("GFNORTEO")
+
+IPC <- ggplot(Rend_activos_IPC) +
+    geom_line(aes(index(Rend_activos_IPC), Rend_activos_IPC$MXX.Close))+
+  xlab("fecha")+
+  ylab("Rend")+
+  ggtitle("IPC")
+
+```
+
+```{r,echo=FALSE}
+Bolsaa + RA + AMX + SITESS + GFINBURO + GFNORTEO+ IPC
+
+```
+
+Tras el análisis, podemos ver que las empresas con una correlación mayor tienen algunas similitudes entre sí, como que la mayoría son empresas de gran capitalización. Así como que todas ellas pertenecen al sector financiero, como son Banorte, Inbursa y BanRegio o al sector de telecomunicaciones, al que pertenecen las otras dos, América Móvil y Telesites. Vemos que son empresas parecidas entre sí o que al menos se dedican a negocios similares, por esto encontramos la alta correlación con nuestro activo principal de estudo que es Bolsa Mexicana de Valores (BOLSAA.MX).
