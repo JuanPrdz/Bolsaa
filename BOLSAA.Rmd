@@ -556,5 +556,77 @@ Nuestra proyección a un año es de 45.35874, sin embargo, el histórico muestra
 Aquí vemos que en la teoría si aplicó a la realidad, claro que hay un desfase en el precio esperado, bien sabemos que no podemos ver el futuro, pero nos ha sorprendido que si se mantiene dentro del intervalo de confianza, para todos los casos y le vemos una gran utilidad a estos métodos de predicción 
 
 
+# Cuarta Entrega -----
 
 
+```{r setup, include=FALSE}
+library(PerformanceAnalytics)
+library(quantmod)
+library(lubridate)
+library(readr)
+library(tidyverse)
+```
+
+```{r}
+datos <- new.env()
+clave <- "BOLSAA.MX"
+getSymbols(clave, from="2016-01-01", to=today(), warnings=FALSE, env=datos)
+activo <- datos[[clave]]
+precio <- activo[,6]
+
+rend_activo <- na.omit(diff(log(na.omit(precio))))
+```
+
+```{r}
+getSymbols("^MXX",  from="2016-01-01", to=today(), warnings = FALSE)
+rend_mercado <- na.omit(diff(log(na.omit(MXX$MXX.Adjusted))))
+```
+
+```{r}
+datos_corre <- merge.xts(rend_activo, rend_mercado)
+names(datos_corre) <- c(clave, "IPC")
+chart.Correlation(na.omit(datos_corre))
+```
+
+```{r}
+Emisoras <- read.csv("Emisoras_Completo2.csv")
+```
+
+```{r}
+lista <- as.matrix(Emisoras)
+n <- nrow(lista)
+datos2 <- new.env()
+Resultados <- as.data.frame(matrix(0,n,2))
+for (i in 1:n) {
+  clave2 <- lista[i,1]
+  getSymbols(clave2, from="2016-01-01", to=today(), env = datos2)
+  activo2 <- datos2[[clave2]]
+  precio2 <- activo2[,6]
+  rend_activo2 <- na.omit(diff(log(na.omit(precio2))))
+  datos_corre2 <- merge.xts(rend_activo, rend_activo2)
+  names(datos_corre2) <- c(clave, clave2)
+  #chart.Correlation(na.omit(datos_corre2))
+  vector_corre <- cor(na.omit(datos_corre2))
+  corre <- vector_corre[2,1]
+  Resultados[i,1] <- clave2
+  Resultados[i,2] <- corre
+}
+```
+
+```{r}
+mas_correlacion <- arrange(Resultados, -V2)[2:6,]
+menos_correlacion <- arrange(Resultados, V2)[1:5,]
+mas_correlacion
+menos_correlacion
+```
+
+```{r}
+claves_correlacion <- c('BOLSAA.MX','RA.MX','AMX','SITESB-1.MX','GFINBURO.MX','GFNORTEO.MX',"^MXX")
+getSymbols(claves_correlacion, from = "2016-01-01", to=today(), warnings=FALSE)
+lista_corre <- lapply(c('BOLSAA.MX','RA.MX','AMX','SITESB-1.MX','GFINBURO.MX','GFNORTEO.MX',
+                 "MXX"), function(x) Cl(get(x))) #Se quita el claves por el contenido por ^
+precio_corre <- (do.call(merge, lista_corre))
+Rend_activos_IPC <- na.omit(diff(log(na.omit(precio_corre))))
+plot(Rend_activos_IPC)
+```
+Para una mejor visualización, los proyectaremos en individual. 
