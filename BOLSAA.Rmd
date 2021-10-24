@@ -556,5 +556,149 @@ Nuestra proyección a un año es de 45.35874, sin embargo, el histórico muestra
 Aquí vemos que en la teoría si aplicó a la realidad, claro que hay un desfase en el precio esperado, bien sabemos que no podemos ver el futuro, pero nos ha sorprendido que si se mantiene dentro del intervalo de confianza, para todos los casos y le vemos una gran utilidad a estos métodos de predicción 
 
 
+# Cuarta Entrega -----
 
+En la primera parte de esta cuarta entrega empezamos por calcular la correlación que existe entre nuestro activo BOLSAA y otros activos, así como el INPC, o sea el mercado. La correlación sé define como una medida estadística que nos dice que tanto dos variables están relacionadas linealmente, nos será de utilidad para encontrar que tan similar son los movimientos entre los activos a analizar.
 
+```{r setup, include=FALSE}
+library(PerformanceAnalytics)
+library(quantmod)
+library(lubridate)
+library(readr)
+library(tidyverse)
+```
+
+```{r,include=FALSE}
+datos <- new.env()
+clave <- "BOLSAA.MX"
+getSymbols(clave, from="2016-01-01", to=today(), warnings=FALSE, env=datos)
+activo <- datos[[clave]]
+precio <- activo[,6]
+
+rend_activo <- na.omit(diff(log(na.omit(precio))))
+```
+Calculamos los rendimientos diarios, con la diferencia logaritmica entre los pecios del activo en el cierre ajustado 
+```{r,include=FALSE}
+getSymbols("^MXX",  from="2016-01-01", to=today(), warnings = FALSE)
+rend_mercado <- na.omit(diff(log(na.omit(MXX$MXX.Adjusted))))
+```
+Mostramos la gráfica de la correlación
+```{r,echo=FALSE}
+datos_corre <- merge.xts(rend_activo, rend_mercado)
+names(datos_corre) <- c(clave, "IPC")
+chart.Correlation(na.omit(datos_corre))
+```
+
+```{r,include=FALSE}
+Emisoras <- read.csv("Emisoras_Completo2.csv")
+```
+Descargamos la información de todos los activos que cotizan en BMV, para poder compararlos vs nuestro activo de estudio
+```{r,include=FALSE}
+lista <- as.matrix(Emisoras)
+n <- nrow(lista)
+datos2 <- new.env()
+Resultados <- as.data.frame(matrix(0,n,2))
+for (i in 1:n) {
+  clave2 <- lista[i,1]
+  getSymbols(clave2, from="2016-01-01", to=today(), env = datos2)
+  activo2 <- datos2[[clave2]]
+  precio2 <- activo2[,6]
+  rend_activo2 <- na.omit(diff(log(na.omit(precio2))))
+  datos_corre2 <- merge.xts(rend_activo, rend_activo2)
+  names(datos_corre2) <- c(clave, clave2)
+  #chart.Correlation(na.omit(datos_corre2))
+  vector_corre <- cor(na.omit(datos_corre2))
+  corre <- vector_corre[2,1]
+  Resultados[i,1] <- clave2
+  Resultados[i,2] <- corre
+}
+```
+mostramos aquellos que tienen mayor correlación vs BOLSAA
+```{r,echo=FALSE}
+mas_correlacion <- arrange(Resultados, -V2)[2:6,]
+mas_correlacion
+```
+Encontramos que los activos con mayor correlación son los siguientes:
+
+Regional SA de Cv (Ra.mx):
+Con sede en San Pedro en Nuevo León, BanRegio Grupo Financiero es una institución dedicada al desarrollo y comercialización de productos financieros.
+
+América Móvil (Amx.mx)
+Es una empresa multinacional mexicana de telecomunicaciones con sede en la Ciudad de México, México. Tiene presencia en 18 países en América y 8 en Europa, con más de 277 millones de usuarios.
+
+Telesites (Sitesb-1.mx)
+Es una empresa mexicana dedicada a construir, instalar, mantener, operar y comercializar diversos tipos de sitios –torres y estructuras de soporte, así como espacios físicos y demás elementos no electrónicos, para la instalación de redes de servicios para el sector de telecomunicaciones.
+
+Grupo financiero Inbursa (Gfinburo.mx)
+Es una sociedad financiera que, a través de sus subsidiarias, proporciona servicios de banca y servicios relacionados en México. La empresa cuenta con líneas de operaciones en fondos de inversión, seguros generales, seguros de automóviles, hipotecas, seguro de salud, fondos de jubilación y banca comercial.
+
+Grupo Financiero Banorte, S.A.B de C.V (Gfnorte.mx):
+Conocido como Banorte e Ixe, es una institución financiera y bancaria mexicana, con sede en Monterrey, Nuevo León. Es uno de los cuatro bancos más grandes de México, en términos de activos y préstamos, y el administrador más largo de afores.
+
+```{r,echo=FALSE}
+claves_correlacion <- c('BOLSAA.MX','RA.MX','AMX','SITESB-1.MX','GFINBURO.MX','GFNORTEO.MX',"^MXX")
+getSymbols(claves_correlacion, from = "2016-01-01", to=today(), warnings=FALSE)
+lista_corre <- lapply(c('BOLSAA.MX','RA.MX','AMX','SITESB-1.MX','GFINBURO.MX','GFNORTEO.MX',
+                 "MXX"), function(x) Cl(get(x))) #Se quita el claves por el contenido por ^
+precio_corre <- (do.call(merge, lista_corre))
+Rend_activos_IPC <- na.omit(diff(log(na.omit(precio_corre))))
+plot(Rend_activos_IPC)
+```
+Para una mejor visualización, los proyectaremos en individual. 
+
+```{r,include=FALSE}
+library(ggplot2)
+library(patchwork)
+```
+
+```{r,include=FALSE}
+Bolsaa <- ggplot(Rend_activos_IPC) +
+  geom_line(aes(index(Rend_activos_IPC), Rend_activos_IPC$BOLSAA.MX.Close)) +
+  xlab("fecha")+
+  ylab("Rend")+
+  ggtitle("BOLSAA") #BMV
+
+RA <- ggplot(Rend_activos_IPC) +
+  geom_line(aes(index(Rend_activos_IPC), Rend_activos_IPC$RA.MX.Close)) +
+  xlab("fecha")+
+  ylab("Rend")+
+  ggtitle("RA") #BANREGIO
+
+AMX <- ggplot(Rend_activos_IPC) +
+  geom_line(aes(index(Rend_activos_IPC), Rend_activos_IPC$AMX.Close))+
+  xlab("fecha")+
+  ylab("Rend")+
+  ggtitle("AMX") #
+
+SITESS <- ggplot(Rend_activos_IPC) +
+  geom_line(aes(index(Rend_activos_IPC), Rend_activos_IPC$SITESB.1.MX.Close))+
+  xlab("fecha")+
+  ylab("Rend")+
+  ggtitle("SITESB")
+
+GFINBURO <- ggplot(Rend_activos_IPC) +
+  geom_line(aes(index(Rend_activos_IPC), Rend_activos_IPC$GFINBURO.MX.Close))+
+  xlab("fecha")+
+  ylab("Rend")+
+  ggtitle("GFINBURO")
+
+GFNORTEO <- ggplot(Rend_activos_IPC) +
+  geom_line(aes(index(Rend_activos_IPC), Rend_activos_IPC$GFNORTEO.MX.Close))+
+  xlab("fecha")+
+  ylab("Rend")+
+  ggtitle("GFNORTEO")
+
+IPC <- ggplot(Rend_activos_IPC) +
+    geom_line(aes(index(Rend_activos_IPC), Rend_activos_IPC$MXX.Close))+
+  xlab("fecha")+
+  ylab("Rend")+
+  ggtitle("IPC")
+
+```
+
+```{r,echo=FALSE}
+Bolsaa + RA + AMX + SITESS + GFINBURO + GFNORTEO+ IPC
+
+```
+
+Tras el análisis, podemos ver que las empresas con una correlación mayor tienen algunas similitudes entre sí, como que la mayoría son empresas de gran capitalización. Así como que todas ellas pertenecen al sector financiero, como son Banorte, Inbursa y BanRegio o al sector de telecomunicaciones, al que pertenecen las otras dos, América Móvil y Telesites. Vemos que son empresas parecidas entre sí o que al menos se dedican a negocios similares, por esto encontramos la alta correlación con nuestro activo principal de estudo que es Bolsa Mexicana de Valores (BOLSAA.MX).
