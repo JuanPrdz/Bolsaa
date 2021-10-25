@@ -5,4 +5,190 @@ date: "24/10/2021"
 output: html_document
 ---
 
+Promedio Móvil
+
+```{r}
+library(PerformanceAnalytics)
+library(quantmod)
+library(lubridate)
+library(TTR)
+library(Rcpp)
+library(readxl)
+library(xts)
+library(zoo)
+library(forecast)
+```
+
+```{r}
+claves <- c("BOLSAA.MX")
+getSymbols(claves, from = "2016-09-01", to=today(), warnings=FALSE)
+list <- lapply(c("BOLSAA.MX"), function(x) Cl(get(x))) #Se quita el claves por el contenido por ^
+precio <- (do.call(merge, list))
+names(precio) <- claves
+```
+
+PARA EL PRECIO DEL ACTIVO (Rendimiento)
+Aquí calculamos el rendimiento diario del activo a estudiar
+
+```{r}
+rend_a <- na.omit(diff(log(precio[,1])))
+```
+
+R2 (Rendimiento al cuadrado)
+Obtenemos los rendimientos al cuadrado los cuales usaremos más adelante,
+para las estimaciones de la varianza
+
+```{r}
+R2 <- rend_a**2
+```
+
+# Estimación para 5, 10, 20, 40
+
+```{r}
+var_est5 <- SMA(R2, n=5)
+var_est10 <- SMA(R2, n=10)
+var_est20 <- SMA(R2, n=20)
+var_est40 <- SMA(R2, n=40)
+```
+
+Gráfica
+Para decidir la mejor estimacion o el mejor valor de m 
+necesitamos obtener las diferencias entre la estimación y el valor real
+
+```{r}
+layout(matrix(c(1,2,3,4), 2, 2, byrow=TRUE))
+plot(var_est5, main = "Varianza móvil con 5 días")
+plot(var_est10, main = "Varianza móvil con 10 días")
+plot(var_est20, main = "Varianza móvil con 20 días")
+plot(var_est40, main = "Varianza móvil con 40 días")
+
+plot(R2, main = "Rendimiento cuadrado")
+```
+
+R2: Es 1a  estimación para la varianza (varianza observada)
+
+```{r}
+var_Real <- R2
+```
+
+El siguiente objeto contiene el error surgido de la estimación realizada
+Nos interesa el valor de "m" que en promedio tenga un error menor
+
+```{r}
+diff_estimacion <- merge.xts((var_Real - var_est5)**2,
+                             (var_Real - var_est10)**2,
+                             (var_Real - var_est20)**2,
+                             (var_Real - var_est40)**2)
+```
+
+```{r}
+names(diff_estimacion) <- c('M5', 'M10', 'M20', 'M40')
+RMSE <- as.data.frame(sqrt(colMeans(na.omit(diff_estimacion)))) # Promedio por columna
+names(RMSE) <- ('RMSE')
+RMSE
+```
+
+DEBIDO A QUE M=5 NOS OFRECE EL MENOR VALOR DE LA RAIZ MEDIA DE LOS ERRORES AL CUADRADO 
+PODEMOS DECIR QUE 5 ES LA MEJOR OPCION PARA LA ESTIMACION
+
+SIN EMBARGO EXISTEN 2 INDICADORES PARA TOMAR LA DECISION DE QUIEN ES "M"
+
+# ERROR ABSOLUTO MEDIO PROPORCIONAL (%) -----
+
+```{r}
+diff_estimacion2 <- merge.xts((abs(var_Real - var_est5)/var_Real),
+                              (abs(var_Real - var_est10)/var_Real),
+                              (abs(var_Real - var_est20)/var_Real),
+                              (abs(var_Real - var_est40)/var_Real))
+
+names(diff_estimacion2) <- c('M5', 'M10', 'M20', 'M40')
+
+diff_estimacion2 <- subset(diff_estimacion2, diff_estimacion2$M5!=Inf)
+```
+
+
+```{r}
+eamp <- as.data.frame(colMeans(na.omit(diff_estimacion2)))
+names(eamp) <- ('EAMP')
+eamp
+```
+
+En este caso, también nos interesa el que tenga menos, en este caso nos interesa el M20
+
+# Error cuadratico porcentual
+Este parámetro saca las diferencias entre la varianza real y la estimada ponderada al respecto a la varianza real y todo elevado al cuadrado
+
+```{r}
+diff_estimacion3 <- merge.xts(((var_Real- var_est5)/var_Real)**2,
+                              ((var_Real- var_est10)/var_Real)**2,
+                              ((var_Real- var_est20)/var_Real)**2,
+                              ((var_Real- var_est40)/var_Real)**2)
+
+names(diff_estimacion3) <- c("M5","M10","M20","M40")
+
+diff_estimacion3 <- subset(diff_estimacion3, diff_estimacion3$M5!=Inf)
+```
+
+# Error cuadrático promedio 
+Mide la cantidad de error que hay entre dos conjuntos de datos.
+
+```{r}
+eccp <- as.data.frame(sqrt(colMeans(na.omit(diff_estimacion3))))
+names(eccp) <- ('ECCP')
+eccp
+```
+
+En éste indicador me dicen que el mejor indicador de M es M40
+La decisión sobre el valor de m dependerá de la cantidad de indicadores que sean coincidentes,
+osea 2 de 3.
+En caso de ser diferentes se optará por el valor de M resultante de la RMSE.
+
+```{r}
+var_opt <- var_est40
+Resultado <- merge.xts(sqrt(var_Real),
+                       sqrt(var_opt))
+plot(Resultado, lwd=c(.4,.8), legend.loc='top')
+```
+
+# Estimación futura para la volatilidad ---
+
+Ahora vamos a hacer estimaciones para la Vol
+
+```{r}
+m <- 40 # Pnemos 40 pq es el valor óptimo para este conjunto de datos
+n <- nrow(var_Real)
+vol_est_futuro <- sqrt(mean(var_Real[(n-m):n,])) # Aqui tomamos los ultimos n días de info de la var real
+vol_est_futuro
+```
+
+```{r}
+fecha_est <- date(var_Real[n])+1
+fecha_est
+```
+
+En esta caso necesiamos estimar 10 un MODELO ARIMA (p,q)
+En el caso especifico de los rendimientos de un activo, Es RMA, NO ARIMA .
+La diferencia entre estos es que el ARIMA se necesita hacer una diferencia sobre la variable original.
+
+AR(Auto Regresivo) MA(MediMóvil)
+
+
+Componente de ruido blanco
+
+ARMA es para una serie de tiempo, se lleva cabo a traves de BOX-JENKINGS
+Nostros usaremos la estimación autómatica de de R
+
+```{r}
+Media_rend <- auto.arima(Rend)
+summary(Media_rend)
+```
+
+
+EWMA
+
+ARCH/GARCH
+
+```{r}
+
+```
 
