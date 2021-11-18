@@ -747,13 +747,120 @@ rend_activo2 <- na.omit(diff(log(na.omit(precio2))))
 precios = merge(precio, precio2, all = T)
 ```
 
+Sacamos los rendimientos de los activos y los observamos en una gráfica.
 ```{r}
-
+rend1<-na.omit(diff(log(precio)))
+rend2<-na.omit(diff(log(precio2)))
+rend<-merge.xts(rend1,rend2)
+precios<-merge.xts(precio, precio2)
+plot(precios)
+plot(rend)
 ```
 
 
+Construyamos un portafolio y determinemos su valor inicial. (Su valor el día de hoy)
+
+```{r}
+n <- nrow(precios)
+a1 <- 100
+a2 <- 100
+pi_a1 <- as.numeric(precios[n,1])
+pi_a2 <-as.numeric(precios[n,2])
+vi <- pi_a1*a1+pi_a2*a2
+dia_inicial <- date(precios[n,1])
+dia_inicial
+vi
+```
 
 
+#### VaR paramétrico
 
 
+Esto nos dice que nuestro portafolio para el día `r dia` es de `vi`
+
+```{r}
+n <- 10000
+# Como el rendimiento es diario, la media y la volatilidad son diarias
+mu_1 <- mean(rend1)
+mu_2 <- mean(rend2)
+vol_1 <- sd(rend1)
+vol_2 <- sd(rend2)
+dt <- 1
+epsilon <- rnorm(n)
+esc_est <- seq(1:(n))
+
+pe_a1 <- pi_a1*exp((mu_1-.5*vol_1^2)*dt+vol_1*epsilon*sqrt(dt))
+pe_a2 <- pi_a2*exp((mu_2-.5*vol_2^2)*dt+vol_2*epsilon*sqrt(dt))
+```
+
+```{r}
+dia_est <- dia_inicial+1
+vp_est <- pe_a1*a1+pe_a2*a2
+plot(vp_est, main=paste("Valor Estimado del Portafolio para el día", dia_est), ylab="Pesos", xlab="Escenarios")
+abline(h=vi, col="red", lwd=2)
+```
+
+```{r}
+fpg <- vp_est-vi
+plot(fpg, main = paste("Pérdida/Ganancia Estimada", dia_est), ylab="Pesos", xlab="Escenarios")
+abline(h=0, col="red", lwd=2)
+hist(fpg, n=50, main=paste("Pérdida/Ganancia Estimada", dia_est))
+```
+
+```{r}
+# 1 dia
+VaR99 <- as.numeric(quantile(fpg,0.01))
+VaR95 <- as.numeric(quantile(fpg,0.05))
+VaR90 <- as.numeric(quantile(fpg,0.1))
+
+# 5 dias
+VaR99_5 <- as.numeric(quantile(fpg,0.01)*sqrt(5))
+VaR95_5 <- as.numeric(quantile(fpg,0.05)*sqrt(5))
+VaR90_5 <- as.numeric(quantile(fpg,0.1)*sqrt(5))
+
+# 10 dias
+VaR99_10 <- as.numeric(quantile(fpg,0.01)*sqrt(10))
+VaR95_10 <- as.numeric(quantile(fpg,0.05)*sqrt(10))
+VaR90_10 <- as.numeric(quantile(fpg,0.1)*sqrt(10))
+
+# 20 dias
+VaR99_20 <- as.numeric(quantile(fpg,0.01)*sqrt(20))
+VaR95_20 <- as.numeric(quantile(fpg,0.05)*sqrt(20))
+VaR90_20 <- as.numeric(quantile(fpg,0.1)*sqrt(20))
+
+VAR99 <- c(VaR99, VaR99_5, VaR99_10, VaR99_20)
+VAR95 <- c(VaR95, VaR95_5, VaR95_10, VaR95_20)
+VAR90 <- c(VaR90, VaR90_5, VaR90_10, VaR90_20)
+
+
+DIAS <- c(dia_est, dia_est+5, dia_est+10, dia_est+20)
+VaR_Total <- data.frame("VaR al 99%"=VAR99, "VaR al 95%"=VAR95, "VaR al 90%"=VAR90, row.names = DIAS)
+VaR_Total
+
+PRUEBAf <- data.frame("VaR al 99%"=VaR99)
+PRUEBAf
+```
+
+```{r}
+VaR90 <- as.numeric(VaR90)
+VaR90_10 <- as.numeric(VaR90_10)
+```
+
+
+```{r}
+BAR <- c(VaR90,VaR90_10)
+dias <- c(dia_est,dia_est+1)
+```
+
+```{r}
+data.frame(BAR,dias)
+```
+
+
+```{r}
+hist(fpg, n=50, main=paste("Pérdida/Ganancia Estimada", dia_est))
+abline(v=VaR99, col = "red", lwd=2)
+abline(v=VaR95, col = "blue", lwd=2)
+abline(v=VaR90, col = "purple", lwd=2)
+```
 
