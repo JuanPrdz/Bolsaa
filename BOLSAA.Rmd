@@ -593,6 +593,15 @@ chart.Correlation(na.omit(datos_corre))
 Emisoras <- read.csv("Emisoras_Completo2.csv")
 ```
 Descargamos la información de todos los activos que cotizan en BMV, para poder compararlos vs nuestro activo de estudio
+
+```{r}
+Emisoras <- Emisoras %>% 
+  filter(
+    EMISORA!='ELEMENT.MX',
+    EMISORA!='PAPPEL.MX'
+  )
+```
+
 ```{r,include=FALSE}
 lista <- as.matrix(Emisoras)
 n <- nrow(lista)
@@ -705,3 +714,46 @@ Tras el análisis, podemos ver que las empresas con una correlación mayor tiene
 
 
 # Quinta entrega :) 
+
+Para elegir el activo de menor correlación utlizarameos el criterio de corelación y eligiremos el que menos corelación tiene para poder diversificar mas nuestro riesgo
+```{r}
+menos_correlacion <- arrange(Resultados, V2)[2:6,]
+menos_correlacion
+```
+
+Observamos que el que menos correlación tiene con nuestro activo es 'FRES.MX'
+Ques una empresa de minera en la Republica Mexicana con sede en la CDMX
+
+```{r}
+datos <- new.env()
+clave <- "BOLSAA.MX"
+getSymbols(clave, from="2016-01-01", to=today(), warnings=FALSE, env=datos)
+activo <- datos[[clave]]
+precio <- activo[,6]
+
+rend_activo <- na.omit(diff(log(na.omit(precio))))
+```
+
+```{r}
+datos2 <- new.env()
+clave2 <- "FRES.MX"
+getSymbols(clave2, from="2016-01-01", to=today(), warnings=FALSE, env=datos)
+activo2 <- datos[[clave2]]
+precio2 <- activo2[,6]
+
+rend_activo2 <- na.omit(diff(log(na.omit(precio2))))
+```
+```{r}
+precios = merge(precio, precio2, all = T)
+```
+
+```{r}
+
+```
+
+
+
+
+
+
+
