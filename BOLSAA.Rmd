@@ -702,3 +702,6 @@ Bolsaa + RA + AMX + SITESS + GFINBURO + GFNORTEO+ IPC
 ```
 
 Tras el análisis, podemos ver que las empresas con una correlación mayor tienen algunas similitudes entre sí, como que la mayoría son empresas de gran capitalización. Así como que todas ellas pertenecen al sector financiero, como son Banorte, Inbursa y BanRegio o al sector de telecomunicaciones, al que pertenecen las otras dos, América Móvil y Telesites. Vemos que son empresas parecidas entre sí o que al menos se dedican a negocios similares, por esto encontramos la alta correlación con nuestro activo principal de estudo que es Bolsa Mexicana de Valores (BOLSAA.MX).
+
+
+# Quinta entrega :) 
