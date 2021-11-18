@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 ---
 title: "Segundo_Examen_Parcial"
 author: "Iván Arellano"
@@ -192,3 +193,125 @@ ARCH/GARCH
 
 ```
 
+=======
+---
+title: "Segundo_Examen_Parcial"
+author: "Iván Arellano"
+date: "24/10/2021"
+output: html_document
+---
+
+# EWMA: 
+
+$$\sigma^2_t=(1-\lambda)R^2_{t-1}+\lambda\sigma^2_{t-1}$$
+En este código vamos a estimar el 
+parametro $\lambda$ del modelo EWMA.
+
+Para encontrar este parametro debemos usar la técnica de maximizar verosimilitud, la cual consiste en maximizar la probabilidad de ocurrencia. Es decir, el valor de $\lambda$ que obtenga será el más probable de coincidir el valor real 
+
+La función de Verosimilitud que vamos a maximizar está dada por: 
+
+$$\max_{\sigma^2_t}\sum[-ln(\sigma_t^2)-\frac{R_i^2}{\sigma_t^2}]$$
+
+```{r,warning=FALSE}
+library(PerformanceAnalytics)
+library(quantmod)
+library(lubridate)
+library(fTrading)
+```
+
+```{r}
+claves <- c('BOLSAA.MX')
+getSymbols(claves,warnings = FALSE)
+list <- lapply(claves, function(x) Cl(get(x)))
+precio <- (do.call(merge, list))
+names(precio) <- claves
+```
+
+```{r}
+Rend <- na.omit(diff(log(na.omit(precio))))
+plot(Rend^2) #Varianza del activo
+```
+
+La volatilidad y la varianza que realmente se observan corresponden con el rendimiento al cuadrado y su raiz 
+
+$$\sigma_t=\sqrt{R_t^2}$$
+
+# Varianza Real
+```{r}
+Var_real <- Rend^2
+```
+
+
+Para ajustar la varianza no constante o **Dinamica** bajo el mdoelo EWMA, hacemos lo siguiente 
+
+# Varainza estimada y funcción de verosimilitud
+```{r}
+n <- length(Var_real)
+Var_Est <- matrix(0,n-1,1) # Aqui vamos a ir guardando cada una de las diferentes estimaciones de varianza que hagamos
+Func <- matrix(0,n-1,1) #Aqui vamos a guardar la función de verosimilitud para cada valor de lambda que pruebe 
+Var_Est[1,1] <- Var_real[1,1] #Inicializar el modelo 
+a <- seq(0.1,0.99,by=0.01) #Estos son los posibles valores con los que probare lambda
+
+```
+
+
+#Cilo iterativo
+```{r}
+j <- 0
+resultados <- matrix(0,length(a),2)
+for (L in a) {
+  for (i in 2:(n-1)) {
+    Var_Est[i,1] <- (1-L)*Var_real[i-1,1]+L*(Var_Est[i-1,1])
+    Func[i,1] <- -log(Var_Est[i,1])-Var_real[i,1]/Var_Est[i,1]
+  }
+  j <- j+1
+  resultados[j,1] <- L
+  resultados[j,2] <- sum(Func)
+}
+```
+
+```{r}
+colnames(resultados) <- c('Lambda','Func_Verosimilitud')
+resultados
+```
+
+
+```{r}
+Loptimo <- resultados[order(resultados[,'Func_Verosimilitud'],decreasing = TRUE),]
+Loptimo <- as.numeric(Loptimo[1,1])
+Loptimo
+```
+
+Déspues de todo este procedimiento podemos decir que el modelo EWMA de este conjunto de datos, tiene la siguiente forma: 
+
+$$\sigma^2_t=´r 1-Loptimo`R^2_{t-1}+´r Loptimo`\sigma^2_{t-1}$$
+
+$$\sigma^2_t= 1-0.93R^2_{t-1}+ 0.93\sigma^2_{t-1}$$
+Estimaciones con el valor optimo de lambda 
+
+Estimaciones con el valor optimo de lambda 
+
+```{r}
+Var_Est_EWMA <- xts(emaTA(Var_real, lambda = Loptimo),order.by = date(Rend))
+names(Var_Est_EWMA) <- c('Estimación Varianza')
+# Comparemos las estimaciones con la real 
+par(mfrow=c(1,2))
+plot(Var_Est_EWMA)
+plot(Var_real)
+```
+
+
+
+
+Ya por ultimo
+# Estimación de la varianza
+```{r}
+vol_Fut <- sqrt((1-Loptimo)*as.numeric(Var_real[n,1])+Loptimo*as.numeric(Var_Est_EWMA[n,1])*100)
+vol_Fut
+fecha_fut <- date(Var_real[n,1])+1
+fecha_fut
+```
+
+
+>>>>>>> Stashed changes
