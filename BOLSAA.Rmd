@@ -724,9 +724,9 @@ menos_correlacion
 
 Así pudimos encontrar el activo con menor correlación con nuestro activo, BOLSAA.
 EL Activo resultante fue:
-Fresnillo PLC ('FRES.MX')
-Es una compañía minera mexicana de metales preciosos incorporada en el Reino Unido y con sede en la Ciudad de México.
-Ésta siendo la productora más grande del mundo de plata de mena (plata primaria) y primera productora de oro más grande de México.
+Grupo Simec, S.A.B. de C.V. ('SIMECB.MX')
+
+(Simec)[https://www.emis.com/] es una mini-acería fabricante de productos de acero no planos con una amplia gama de perfiles estructurales, comerciales, varilla y aceros especiales, que se emplean principalmente en los sectores de la construcción, automotriz y manufactura.
 
 Se procedió a hacer la descarga de los datos de ambos activos para los últimos 5 años aproximadamente
 ```{r}
@@ -1064,7 +1064,7 @@ back99
 back95
 back90
 ```
-
+Se raliza el backtesting y podemos observar que nuestra medición es bastante buena, fallando para el 99% solo el 0.2% de las veces y para el 90% solo el 2% de las veces por tanto podemos afrmar que nuetro test es satisfactorio, y nuestra medida de var es correcta 
 
 ```{r}
 back_tabla <- data.frame("Test 99%"=back99, "Test 95%"=back95, "Test 90%"=back90, row.names = dia_est)
@@ -1079,7 +1079,7 @@ vol_2 <- sd(rend2)
 
 
 
-FALTAAAA
+Ponderaciónes de los activos 
 
 ```{r}
 w1 <- (2*vol_2^2-2*-0.01458363)/(2*vol_1^2-4*-0.01458363	+ 2*vol_2^2)
@@ -1087,6 +1087,25 @@ w2 <- 1-w1
 w1
 w2
 ```
+Para los activos descritos Bolsa y SIMECB si tuvieramos un portafolio 
+la ponderación adecuada para reducir la minima varianza es de 49.9% para bolsa 
+y 50.1% para SIMECB 
+
+
+
+# Conclusión: 
+Con la ayuda del var podemos tener conocimiento de cuanto es el maximo valor posible de perdida de nuetro portafolio para diferentes periodos de tiempo. Nos da una información vital a la hora de adquirir cirta acción o portafolio. 
+
+Con todo este proyecto, pudimos analizar los diferente métodos y medidas que nos ayudan a estudiar el riesgo que con lleva adquirir algun activo financiero. Ya sea con suposiciones de normalidad o no. Fue muy interesante estudiar este activo debido a que aprendimos a verlo de otra manera mas alla de solo comprar o vender dependiendo de su gráfica. Ahora tenemos herramientas para elegir de manera optima los activos de nuestro portafolio, teniendo en cuenta el riesgo que conlleva. 
+
+Tambien aprendimos a determinar precios, para uno o mas días con diferentes métodologias. Lo cual tambien podemos aplicar de ahora en adelante, día con cía en nuestros portafolios personales. 
+
+Juan Pablo Rodriguez
+Iván Arellano Ruelas
+Santiago Romero
+
+Muchas Gracias. 
+
 
 
 
