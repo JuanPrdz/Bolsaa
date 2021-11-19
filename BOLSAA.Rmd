@@ -741,7 +741,7 @@ rend_activo <- na.omit(diff(log(na.omit(precio))))
 
 ```{r}
 datos2 <- new.env()
-clave2 <- "FRES.MX"
+clave2 <- "SIMECB.MX"
 getSymbols(clave2, from="2016-01-01", to=today(), warnings=FALSE, env=datos)
 activo2 <- datos[[clave2]]
 precio2 <- activo2[,6]
@@ -857,24 +857,8 @@ DIAS <- c(dia_est, dia_est+5, dia_est+10, dia_est+20)
 VaR_Total <- data.frame("VaR al 99%"=VAR99, "VaR al 95%"=VAR95, "VaR al 90%"=VAR90, row.names = DIAS)
 VaR_Total
 
-PRUEBAf <- data.frame("VaR al 99%"=VaR99)
-PRUEBAf
 ```
 
-```{r}
-VaR90 <- as.numeric(VaR90)
-VaR90_10 <- as.numeric(VaR90_10)
-```
-
-
-```{r}
-BAR <- c(VaR90,VaR90_10)
-dias <- c(dia_est,dia_est+1)
-```
-
-```{r}
-data.frame(BAR,dias)
-```
 Considerando una confianza de 90%, la estimación del VaR fue de aproximadamente 932.6 de pérdida para 1 día y de 2949.12 de pérdida para 2 días 
 
 Procederemos a crear un gráfico mostrando el VaR calculado para 1 día con 90%, 95%, 99%
@@ -885,3 +869,169 @@ abline(v=VaR95, col = "blue", lwd=2)
 abline(v=VaR90, col = "purple", lwd=2)
 ```
 En el histograma podemos ver las 3 líneas en vertical, cada una significando el VaR con las 3 diferentes confianzas (90%, 95%, 99%), donde la roja nos habla del VaR a 90%, la azul a 95% y la morada a 99%, pues mientras mayor confianza se le otorga mayor es el rango de posible pérdida estimada
+
+##### Comprobación del VaR mediante un backtesting VAR Paramétrico
+
+Esta técnica se utiliza para comprobar la estimación del VaR. Consiste en analizar el pasado y determinar, el número de dias en los cuales la pérdida real es menor al VaR estimado, para contabilizar las excepciones.
+
+Para ello tendremos los siguientes pasos:
+
+**Paso 1: Construis el valor real del portafolio en el tiempo**
+
+```{r}
+vp_real <- a1*precio+a2*precio2
+plot(vp_real)
+```
+
+```{r}
+fpg_real <- na.omit(diff(vp_real))
+plot(fpg_real)
+mean(fpg_real)
+```
+
+```{r}
+backtesting_99 <- ifelse(fpg_real<VaR99,1,0) #Este objeto contendrá las excepciones. Es decir, asignará un uno a aquellos días en los que la pérdida exceda a el VaR
+backtesting_95 <- ifelse(fpg_real<VaR95,1,0)
+backtesting_90 <- ifelse(fpg_real<VaR90,1,0)
+plot(backtesting_99)
+```
+```{r}
+back99 <- sum(backtesting_99)/nrow(fpg_real)*100
+back95 <- sum(backtesting_95)/nrow(fpg_real)*100
+back90 <- sum(backtesting_90)/nrow(fpg_real)*100
+
+back99
+back95
+back90
+```
+
+```{r}
+back_tabla <- data.frame("Test 99%"=back99, "Test 95%"=back95, "Test 90%"=back90, row.names = dia_est)
+back_tabla
+```
+
+
+#### VaR No paramétrico
+
+```{r}
+n <- nrow(precios)
+a1 <- 100
+a2 <- 100
+pi_a1 <- as.numeric(precios[n,1])
+pi_a2 <-as.numeric(precios[n,2])
+vi <- pi_a1*a1+pi_a2*a2
+dia_inicial <- date(precios[n,1])
+dia_inicial
+vi
+```
+
+
+```{r}
+dia_est <- date(precios[n,1])+1
+esc_est <- seq(1:(n-1))
+pe_a1 <- as.data.frame(pi_a1*(1+rend[,1]),row.names=paste("Escenario", esc_est))
+names(pe_a1) <- dia_est
+
+pe_a2 <- as.data.frame(pi_a2*(1+rend[,2]),row.names=paste("Escenario", esc_est))
+names(pe_a2) <- dia_est
+```
+
+```{r}
+vp_est <- pe_a1*a1+pe_a2*a2
+plot(vp_est[,1], main=paste("Valor Estimado del Portafolio para el día", dia_est), ylab="Pesos", xlab="Escenarios")
+abline(h=vi, col="red", lwd=2)
+```
+```{r}
+fpg <- vp_est-vi
+plot(fpg[,1], main = paste("Pérdida/Ganancia Estimada", dia_est), ylab="Pesos", xlab="Escenarios")
+abline(h=0, col="red", lwd=2)
+hist(fpg[,1], n=100, main=paste("Pérdida/Ganancia Estimada", dia_est))
+```
+
+```{r}
+# 1 dia
+VaR99 <- as.numeric(quantile(fpg[,1],0.01))
+VaR95 <- as.numeric(quantile(fpg[,1],0.05))
+VaR90 <- as.numeric(quantile(fpg[,1],0.1))
+
+# 5 dias
+VaR99_5 <- as.numeric(quantile(fpg[,1],0.01)*sqrt(5))
+VaR95_5 <- as.numeric(quantile(fpg[,1],0.05)*sqrt(5))
+VaR90_5 <- as.numeric(quantile(fpg[,1],0.1)*sqrt(5))
+
+# 10 dias
+VaR99_10 <- as.numeric(quantile(fpg[,1],0.01)*sqrt(10))
+VaR95_10 <- as.numeric(quantile(fpg[,1],0.05)*sqrt(10))
+VaR90_10 <- as.numeric(quantile(fpg[,1],0.1)*sqrt(10))
+
+# 20 dias
+VaR99_20 <- as.numeric(quantile(fpg[,1],0.01)*sqrt(20))
+VaR95_20 <- as.numeric(quantile(fpg[,1],0.05)*sqrt(20))
+VaR90_20 <- as.numeric(quantile(fpg[,1],0.1)*sqrt(20))
+
+VAR99 <- c(VaR99, VaR99_5, VaR99_10, VaR99_20)
+VAR95 <- c(VaR95, VaR95_5, VaR95_10, VaR95_20)
+VAR90 <- c(VaR90, VaR90_5, VaR90_10, VaR90_20)
+
+
+DIAS <- c(dia_est, dia_est+5, dia_est+10, dia_est+20)
+VaR_Totalo <- data.frame("VaR al 99%"=VAR99, "VaR al 95%"=VAR95, "VaR al 90%"=VAR90, row.names = DIAS)
+VaR_Totalo
+
+```
+
+##### Comprobación del VaR mediante un backtesting VAR No Paramétrico
+
+Esta técnica se utiliza para comprobar la estimación del VaR. Consiste en analizar el pasado y determinar, el número de dias en los cuales la pérdida real es menor al VaR estimado, para contabilizar las excepciones.
+
+Para ello tendremos los siguientes pasos:
+
+**Paso 1: Construis el valor real del portafolio en el tiempo**
+
+```{r}
+vp_real <- a1*precio+a2*precio2
+plot(vp_real)
+```
+
+```{r}
+fpg_real <- na.omit(diff(vp_real))
+plot(fpg_real)
+mean(fpg_real)
+```
+```{r}
+backtesting_99 <- ifelse(fpg_real<VaR99,1,0) #Este objeto contendrá las excepciones. Es decir, asignará un uno a aquellos días en los que la pérdida exceda a el VaR
+backtesting_95 <- ifelse(fpg_real<VaR95,1,0)
+backtesting_90 <- ifelse(fpg_real<VaR90,1,0)
+plot(backtesting_99)
+```
+
+
+```{r}
+back99 <- sum(backtesting_99)/nrow(fpg_real)*100
+back95 <- sum(backtesting_95)/nrow(fpg_real)*100
+back90 <- sum(backtesting_90)/nrow(fpg_real)*100
+
+back99
+back95
+back90
+```
+
+
+```{r}
+back_tabla <- data.frame("Test 99%"=back99, "Test 95%"=back95, "Test 90%"=back90, row.names = dia_est)
+back_tabla
+```
+
+
+
+
+```{r}
+w1 <- (2*vol_2^2-2*-0.01458363)/(2*vol_1^2-4*-0.01458363	+ 2*vol_2^2)
+w2 <- 1-w1
+w1
+w2
+```
+
+
+
+
