@@ -715,15 +715,20 @@ Tras el análisis, podemos ver que las empresas con una correlación mayor tiene
 
 # Quinta entrega :) 
 
-Para elegir el activo de menor correlación utlizarameos el criterio de corelación y eligiremos el que menos corelación tiene para poder diversificar mas nuestro riesgo
+Se comenzó eligiendo el activo de menor correlación para esto se utilizó el criterio de correlación, a través de éste pudimos encontrar el activo con la menor correlación posible esto con función de poder diversificar de mejor forma nuestro riesgo a la hora de construir el porafolio
+
 ```{r}
 menos_correlacion <- arrange(Resultados, V2)[2:6,]
 menos_correlacion
 ```
 
-Observamos que el que menos correlación tiene con nuestro activo es 'FRES.MX'
-Ques una empresa de minera en la Republica Mexicana con sede en la CDMX
+Así pudimos encontrar el activo con menor correlación con nuestro activo, BOLSAA.
+EL Activo resultante fue:
+Fresnillo PLC ('FRES.MX')
+Es una compañía minera mexicana de metales preciosos incorporada en el Reino Unido y con sede en la Ciudad de México.
+Ésta siendo la productora más grande del mundo de plata de mena (plata primaria) y primera productora de oro más grande de México.
 
+Se procedió a hacer la descarga de los datos de ambos activos para los últimos 5 años aproximadamente
 ```{r}
 datos <- new.env()
 clave <- "BOLSAA.MX"
@@ -747,7 +752,8 @@ rend_activo2 <- na.omit(diff(log(na.omit(precio2))))
 precios = merge(precio, precio2, all = T)
 ```
 
-Sacamos los rendimientos de los activos y los observamos en una gráfica.
+Sacamos los rendimientos de los activos y podemos observar en la 1er gráfica el movimiento de los precios.
+Además de la distribución de los rendimientos de ambos activos en la 2da gráfica
 ```{r}
 rend1<-na.omit(diff(log(precio)))
 rend2<-na.omit(diff(log(precio2)))
@@ -758,7 +764,7 @@ plot(rend)
 ```
 
 
-Construyamos un portafolio y determinemos su valor inicial. (Su valor el día de hoy)
+Procedimos a construir un portafolio con ambos activos para determinar su valor inicial. (Al día de hoy) ***
 
 ```{r}
 n <- nrow(precios)
@@ -775,8 +781,13 @@ vi
 
 #### VaR paramétrico
 
+El VaR paramétrico es un método para estimar el Valor en Riesgo, utilizaremos los datos descargados para estimar la rentabilidad diaria, la media y el riesgo (desviación estándar) de cada uno de los activos.
+A través de la siguiente fórmula lo calcularemos:
 
-Esto nos dice que nuestro portafolio para el día `r dia` es de `vi`
+VaR = |R – z·δ|· V
+
+
+Esto nos dice que nuestro portafolio para el día `r dia` es de `vi` ***
 
 ```{r}
 n <- 10000
@@ -793,12 +804,19 @@ pe_a1 <- pi_a1*exp((mu_1-.5*vol_1^2)*dt+vol_1*epsilon*sqrt(dt))
 pe_a2 <- pi_a2*exp((mu_2-.5*vol_2^2)*dt+vol_2*epsilon*sqrt(dt))
 ```
 
+Después procedimos a crear una gráfica de la estimación del VaR del portafolio para el siguiente día
+
 ```{r}
 dia_est <- dia_inicial+1
 vp_est <- pe_a1*a1+pe_a2*a2
 plot(vp_est, main=paste("Valor Estimado del Portafolio para el día", dia_est), ylab="Pesos", xlab="Escenarios")
 abline(h=vi, col="red", lwd=2)
 ```
+Podemos observar que la mayoría de las simulaciones se ubican entre 2800 y 3100 en la gráfica
+Con una media de aproximadamente 2960
+
+
+A continuación podemos observar la estimación obtenida de las ganancias o pérdidas previstas por nuestro modelo del VaR para el siguiente día
 
 ```{r}
 fpg <- vp_est-vi
@@ -806,7 +824,9 @@ plot(fpg, main = paste("Pérdida/Ganancia Estimada", dia_est), ylab="Pesos", xla
 abline(h=0, col="red", lwd=2)
 hist(fpg, n=50, main=paste("Pérdida/Ganancia Estimada", dia_est))
 ```
+En la grafica observamos la estimación de pérdidas y ganacias donde tenemos una media realmente muy cercana a 0, ni pérdida ni ganancia y la mayor parte de las simulaciones se ubican entre -2000 y 1500. Además agregamos una segunda gráfica con su distribución .
 
+Ahora haremos el cálculo del VaR del portafolio para 1,5,10,20 días cada uno con 90%, 95%, 99% de confianza
 ```{r}
 # 1 dia
 VaR99 <- as.numeric(quantile(fpg,0.01))
@@ -855,12 +875,13 @@ dias <- c(dia_est,dia_est+1)
 ```{r}
 data.frame(BAR,dias)
 ```
+Considerando una confianza de 90%, la estimación del VaR fue de aproximadamente 932.6 de pérdida para 1 día y de 2949.12 de pérdida para 2 días 
 
-
+Procederemos a crear un gráfico mostrando el VaR calculado para 1 día con 90%, 95%, 99%
 ```{r}
 hist(fpg, n=50, main=paste("Pérdida/Ganancia Estimada", dia_est))
 abline(v=VaR99, col = "red", lwd=2)
 abline(v=VaR95, col = "blue", lwd=2)
 abline(v=VaR90, col = "purple", lwd=2)
 ```
-
+En el histograma podemos ver las 3 líneas en vertical, cada una significando el VaR con las 3 diferentes confianzas (90%, 95%, 99%), donde la roja nos habla del VaR a 90%, la azul a 95% y la morada a 99%, pues mientras mayor confianza se le otorga mayor es el rango de posible pérdida estimada
