@@ -717,19 +717,18 @@ Tras el análisis, podemos ver que las empresas con una correlación mayor tiene
 
 Se comenzó eligiendo el activo de menor correlación para esto se utilizó el criterio de correlación, a través de éste pudimos encontrar el activo con la menor correlación posible esto con función de poder diversificar de mejor forma nuestro riesgo a la hora de construir el porafolio
 
-```{r}
+```{r,include=FALSE}
 menos_correlacion <- arrange(Resultados, V2)[2:6,]
 menos_correlacion
 ```
 
-Así pudimos encontrar el activo con menor correlación con nuestro activo, BOLSAA.
 EL Activo resultante fue:
 Grupo Simec, S.A.B. de C.V. ('SIMECB.MX')
 
-(Simec)[https://www.emis.com/] es una mini-acería fabricante de productos de acero no planos con una amplia gama de perfiles estructurales, comerciales, varilla y aceros especiales, que se emplean principalmente en los sectores de la construcción, automotriz y manufactura.
+[Simec](https://www.emis.com/) es una mini-acería fabricante de productos de acero no planos con una amplia gama de perfiles estructurales, comerciales, varilla y aceros especiales, que se emplean principalmente en los sectores de la construcción, automotriz y manufactura.
 
 Se procedió a hacer la descarga de los datos de ambos activos para los últimos 5 años aproximadamente
-```{r}
+```{r,include=FALSE}
 datos <- new.env()
 clave <- "BOLSAA.MX"
 getSymbols(clave, from="2016-01-01", to=today(), warnings=FALSE, env=datos)
@@ -739,7 +738,7 @@ precio <- activo[,6]
 rend_activo <- na.omit(diff(log(na.omit(precio))))
 ```
 
-```{r}
+```{r,include=FALSE}
 datos2 <- new.env()
 clave2 <- "SIMECB.MX"
 getSymbols(clave2, from="2016-01-01", to=today(), warnings=FALSE, env=datos2)
@@ -748,7 +747,7 @@ precio2 <- activo2[,6]
 
 rend_activo2 <- na.omit(diff(log(na.omit(precio2))))
 ```
-```{r}
+```{r,include=FALSE}
 precios = merge(precio, precio2, all = T)
 ```
 
@@ -764,9 +763,9 @@ plot(rend)
 ```
 
 
-Procedimos a construir un portafolio con ambos activos para determinar su valor inicial. (Al día de hoy) ***
+Procedimos a construir un portafolio con ambos activos para determinar su valor inicial. (Al día de hoy)
 
-```{r}
+```{r,include=FALSE}
 n <- nrow(precios)
 a1 <- 100
 a2 <- 100
@@ -787,34 +786,34 @@ A través de la siguiente fórmula lo calcularemos:
 VaR = |R – z·δ|· V
 
 
-Esto nos dice que nuestro portafolio para el día `r dia` es de `vi` ***
+Esto nos dice que nuestro portafolio para el día `r dia_inicial` es de `r vi`
 
-```{r}
+```{r,include=FALSE}
 datos6m <- new.env()
 clave6m <- "BOLSAA.MX"
 getSymbols(clave6m, from="2021-05-19", to=today(), warnings=FALSE, env=datos6m)
-activo6m <- datos6m[[clave6m]]
+activo6m <- na.omit(datos6m[[clave6m]])
 precio6m <- activo6m[,6]
 
 rend_activo6m <- na.omit(diff(log(na.omit(precio6m))))
 ```
 
-```{r}
+```{r,include=FALSE}
 datos26m <- new.env()
 clave26m <- "SIMECB.MX"
 getSymbols(clave26m, from="2021-05-19", to=today(), warnings=FALSE, env=datos26m)
-activo26m <- datos26m[[clave26m]]
+activo26m <- na.omit(datos26m[[clave26m]])
 precio26m <- activo26m[,6]
 
 rend_activo26m <- na.omit(diff(log(na.omit(precio26m))))
 ```
 
-```{r}
+```{r,include=FALSE}
 precios6m = merge(precio6m, precio26m, all = T)
 ```
 
 
-```{r}
+```{r,echo=FALSE}
 rend16m<-na.omit(diff(log(precio6m)))
 rend26m<-na.omit(diff(log(precio26m)))
 rend6m<-merge.xts(rend16m,rend26m)
@@ -822,8 +821,9 @@ precios6m<-merge.xts(precio6m, precio26m)
 plot(precios6m)
 plot(rend6m)
 ```
+En las gráficas superiores podemos ver los precios y los rendimientos de ambos activos con los últimos 6 meses. 
 
-```{r}
+```{r, include=FALSE}
 n6m <- nrow(precios6m)
 a1 <- 100
 a2 <- 100
@@ -835,7 +835,7 @@ dia_inicial6m
 vi6m
 ```
 
-```{r}
+```{r, include=FALSE}
 n <- 10000
 # Como el rendimiento es diario, la media y la volatilidad son diarias
 mu_16m <- mean(rend16m)
@@ -850,30 +850,34 @@ pe_a16m <- pi_a16m*exp((mu_16m-.5*vol_16m^2)*dt+vol_16m*epsilon6m*sqrt(dt))
 pe_a26m <- pi_a26m*exp((mu_26m-.5*vol_26m^2)*dt+vol_26m*epsilon6m*sqrt(dt))
 ```
 
-Después procedimos a crear una gráfica de la estimación del VaR del portafolio para el siguiente día
-```{r}
+Después procedimos a crear una gráfica de la estimación del valor del portafolio para el siguiente día.
+```{r, echo=FALSE}
 dia_est6m <- dia_inicial6m+1
 vp_est6m <- pe_a16m*a1+pe_a26m*a2
 plot(vp_est6m, main=paste("Valor Estimado del Portafolio para el día", dia_est6m), ylab="Pesos", xlab="Escenarios")
 abline(h=vi6m, col="red", lwd=2)
 ```
 
-Podemos observar que la mayoría de las simulaciones se ubican entre 2800 y 3100 en la gráfica
-Con una media de aproximadamente 2960
+Podemos observar que la mayoría de las simulaciones se ubican entre 18500 y 21500 en la gráfica
+Con una media de aproximadamente 18000
 
 
 A continuación podemos observar la estimación obtenida de las ganancias o pérdidas previstas por nuestro modelo del VaR para el siguiente día
 
-```{r}
+```{r, echo=FALSE}
 fpg6m <- vp_est6m-vi6m
 plot(fpg6m, main = paste("Pérdida/Ganancia Estimada", dia_est6m), ylab="Pesos", xlab="Escenarios")
 abline(h=0, col="red", lwd=2)
 hist(fpg6m, n=50, main=paste("Pérdida/Ganancia Estimada", dia_est6m))
 ```
-En la grafica observamos la estimación de pérdidas y ganacias donde tenemos una media realmente muy cercana a 0, ni pérdida ni ganancia y la mayor parte de las simulaciones se ubican entre -2000 y 1500. Además agregamos una segunda gráfica con su distribución .
 
-Ahora haremos el cálculo del VaR del portafolio para 1,5,10,20 días cada uno con 90%, 95%, 99% de confianza
-```{r}
+
+En la grafica observamos la estimación de pérdidas y ganacias donde tenemos una media realmente muy cercana a 0, ni pérdida ni ganancia y la mayor parte de las simulaciones se ubican entre -1500 y 1500. Además agregamos una segunda gráfica con su distribución.
+
+Ahora haremos el cálculo del VaR del portafolio para 1,5,10,20 días cada uno con 90%, 95%, 99% de confianza.
+
+
+```{r, include=FALSE}
 # 1 dia
 VaR996m <- as.numeric(quantile(fpg6m,0.01))
 VaR956m <- as.numeric(quantile(fpg6m,0.05))
@@ -901,57 +905,65 @@ VAR906m <- c(VaR906m, VaR90_56m, VaR90_106m, VaR90_206m)
 
 DIAS <- c(dia_est6m, dia_est6m+5, dia_est6m+10, dia_est6m+20)
 VaR_Total6m <- data.frame("VaR al 99%"=VAR996m, "VaR al 95%"=VAR956m, "VaR al 90%"=VAR906m, row.names = DIAS)
-VaR_Total6m
-
 ```
 
-Considerando una confianza de 90%, la estimación del VaR fue de aproximadamente 932.6 de pérdida para 1 día y de 2949.12 de pérdida para 2 días 
+```{r}
+VaR_Total6m
+```
+
+Considerando una confianza de 90%, la estimación del VaR fue de aproximadamente 536.64 de pérdida para 1 día y de 2399.90 de pérdida para 20 días 
 
 Procederemos a crear un gráfico mostrando el VaR calculado para 1 día con 90%, 95%, 99%
-```{r}
+```{r, echo=FALSE}
 hist(fpg6m, n=50, main=paste("Pérdida/Ganancia Estimada", dia_est6m))
 abline(v=VaR996m, col = "red", lwd=2)
 abline(v=VaR956m, col = "blue", lwd=2)
 abline(v=VaR906m, col = "purple", lwd=2)
 ```
-En el histograma podemos ver las 3 líneas en vertical, cada una significando el VaR con las 3 diferentes confianzas (90%, 95%, 99%), donde la roja nos habla del VaR a 90%, la azul a 95% y la morada a 99%, pues mientras mayor confianza se le otorga mayor es el rango de posible pérdida estimada
 
-##### Comprobación del VaR mediante un backtesting VAR Paramétrico
+
+En el histograma podemos ver las 3 líneas en vertical, cada una significando el VaR con las 3 diferentes confianzas (90%, 95%, 99%), donde la roja nos habla del VaR a 90%, la azul a 95% y la morada a 99%, pues mientras mayor confianza se le otorga mayor es el rango de posible pérdida estimada.
+
+#### Comprobación del VaR mediante un backtesting VAR Paramétrico
 
 Esta técnica se utiliza para comprobar la estimación del VaR. Consiste en analizar el pasado y determinar, el número de dias en los cuales la pérdida real es menor al VaR estimado, para contabilizar las excepciones.
 
 Para ello tendremos los siguientes pasos:
 
-**Paso 1: Construis el valor real del portafolio en el tiempo**
+**Paso 1: Construir el valor real del portafolio en el tiempo**
 
-```{r}
+```{r, echo=FALSE}
 vp_real6m <- a1*precio6m+a2*precio26m
 plot(vp_real6m)
 ```
 
-```{r}
+```{r, echo=FALSE}
 fpg_real6m <- na.omit(diff(vp_real6m))
 plot(fpg_real6m)
-mean(fpg_real6m)
 ```
 
-```{r}
+```{r, echo=FALSE}
 backtesting_996m <- ifelse(fpg_real6m<VaR996m,1,0) #Este objeto contendrá las excepciones. Es decir, asignará un uno a aquellos días en los que la pérdida exceda a el VaR
 backtesting_956m <- ifelse(fpg_real6m<VaR956m,1,0)
 backtesting_906m <- ifelse(fpg_real6m<VaR906m,1,0)
 plot(backtesting_996m)
 ```
 
-```{r}
+En la gráfica previa se observan en picos donde el VaR superó la estimación y gráficamente sólo se ve 1.
+```{r, include=FALSE}
 back996m <- sum(backtesting_996m)/nrow(fpg_real6m)*100
 back956m <- sum(backtesting_956m)/nrow(fpg_real6m)*100
 back906m <- sum(backtesting_906m)/nrow(fpg_real6m)*100
+```
 
+```{r, echo=FALSE}
 cat("Porcentaje de error 99%: ", back996m)
 cat(", Porcentaje de error 95%: ", back956m)
 cat(" y Porcentaje de error 90%: ", back906m)
 
 ```
+
+Finalmente en esta tabla ordenamos el backtesting para un día:
 
 ```{r}
 back_tabla6m <- data.frame("Test 99%"=back996m, "Test 95%"=back956m, "Test 90%"=back906m, row.names = dia_est6m)
@@ -959,9 +971,11 @@ back_tabla6m
 ```
 
 
-#### VaR No paramétrico
+### VaR No paramétrico
 
-```{r}
+El VaR no paramétrico no asume normalidad, utiliza los históricos y los proyecta a futuro, así, estimando el VaR para los mísmos días futuros que los pasados. 
+
+```{r, include=FALSE}
 n <- nrow(precios)
 a1 <- 100
 a2 <- 100
@@ -974,7 +988,7 @@ vi
 ```
 
 
-```{r}
+```{r, include=FALSE}
 dia_est <- date(precios[n,1])+1
 esc_est <- seq(1:(n-1))
 pe_a1 <- as.data.frame(pi_a1*(1+rend[,1]),row.names=paste("Escenario", esc_est))
@@ -984,20 +998,27 @@ pe_a2 <- as.data.frame(pi_a2*(1+rend[,2]),row.names=paste("Escenario", esc_est))
 names(pe_a2) <- dia_est
 ```
 
-```{r}
+Después procedimos a crear una gráfica de la estimación del valor del portafolio para el siguiente día.
+```{r, echo=FALSE}
 vp_est <- pe_a1*a1+pe_a2*a2
 plot(vp_est[,1], main=paste("Valor Estimado del Portafolio para el día", dia_est), ylab="Pesos", xlab="Escenarios")
 abline(h=vi, col="red", lwd=2)
 ```
+Podemos observar que la mayoría de las simulaciones se ubican entre 18000 y 22000 en la gráfica
+Con una media de aproximadamente 19800.
 
-```{r}
+
+A continuación podemos observar la estimación obtenida de las ganancias o pérdidas previstas por nuestro modelo del VaR para el siguiente día
+
+```{r, echo=FALSE}
 fpg <- vp_est-vi
 plot(fpg[,1], main = paste("Pérdida/Ganancia Estimada", dia_est), ylab="Pesos", xlab="Escenarios")
 abline(h=0, col="red", lwd=2)
 hist(fpg[,1], n=100, main=paste("Pérdida/Ganancia Estimada", dia_est))
 ```
 
-```{r}
+Y ahora en la siguiente tabla, observaremos como son los VaR para 1, 5, 10 y 20 días. 
+```{r, include=FALSE}
 # 1 dia
 VaR99 <- as.numeric(quantile(fpg[,1],0.01))
 VaR95 <- as.numeric(quantile(fpg[,1],0.05))
@@ -1025,52 +1046,58 @@ VAR90 <- c(VaR90, VaR90_5, VaR90_10, VaR90_20)
 
 DIAS <- c(dia_est, dia_est+5, dia_est+10, dia_est+20)
 VaR_Totalo <- data.frame("VaR al 99%"=VAR99, "VaR al 95%"=VAR95, "VaR al 90%"=VAR90, row.names = DIAS)
+```
+
+Acomodamos en tabla los VaR con sus respectivos niveles de confianza y días futuros estimados. 
+```{r}
 VaR_Totalo
 
 ```
 
-##### Comprobación del VaR mediante un backtesting VAR No Paramétrico
+#### Comprobación del VaR mediante un backtesting VAR No Paramétrico
 
 Esta técnica se utiliza para comprobar la estimación del VaR. Consiste en analizar el pasado y determinar, el número de dias en los cuales la pérdida real es menor al VaR estimado, para contabilizar las excepciones.
 
 Para ello tendremos los siguientes pasos:
 
-**Paso 1: Construis el valor real del portafolio en el tiempo**
+**Paso 1: Construir el valor real del portafolio en el tiempo**
 
-```{r}
+```{r, echo=FALSE}
 vp_real <- a1*precio+a2*precio2
 plot(vp_real)
 ```
 
-```{r}
+```{r, echo=FALSE}
 fpg_real <- na.omit(diff(vp_real))
 plot(fpg_real)
-mean(fpg_real)
 ```
-```{r}
+```{r, echo=FALSE}
 backtesting_99 <- ifelse(fpg_real<VaR99,1,0) #Este objeto contendrá las excepciones. Es decir, asignará un uno a aquellos días en los que la pérdida exceda a el VaR
 backtesting_95 <- ifelse(fpg_real<VaR95,1,0)
 backtesting_90 <- ifelse(fpg_real<VaR90,1,0)
 plot(backtesting_99)
 ```
+Aquí se ven un poco más de irregularidades con las proyecciones, pero realmente son pocas.
 
-
-```{r}
+```{r, include=FALSE}
 back99 <- sum(backtesting_99)/nrow(fpg_real)*100
 back95 <- sum(backtesting_95)/nrow(fpg_real)*100
 back90 <- sum(backtesting_90)/nrow(fpg_real)*100
-
-back99
-back95
-back90
 ```
+
+```{r, echo=FALSE}
+cat("Porcentaje de error 99%: ", back99)
+cat(", Porcentaje de error 95%: ", back95)
+cat(" y Porcentaje de error 90%: ", back90)
+```
+
 Se raliza el backtesting y podemos observar que nuestra medición es bastante buena, fallando para el 99% solo el 0.2% de las veces y para el 90% solo el 2% de las veces por tanto podemos afrmar que nuetro test es satisfactorio, y nuestra medida de var es correcta 
 
 ```{r}
 back_tabla <- data.frame("Test 99%"=back99, "Test 95%"=back95, "Test 90%"=back90, row.names = dia_est)
 back_tabla
 ```
-```{r}
+```{r, include=FALSE}
 mu_1 <- mean(rend1)
 mu_2 <- mean(rend2)
 vol_1 <- sd(rend1)
@@ -1082,6 +1109,7 @@ vol_2 <- sd(rend2)
 Ponderaciónes de los activos 
 
 ```{r}
+# Correlación de los activos: -0.01458363
 w1 <- (2*vol_2^2-2*-0.01458363)/(2*vol_1^2-4*-0.01458363	+ 2*vol_2^2)
 w2 <- 1-w1
 w1
@@ -1094,11 +1122,11 @@ y 50.1% para SIMECB
 
 
 # Conclusión: 
-Con la ayuda del var podemos tener conocimiento de cuanto es el maximo valor posible de perdida de nuetro portafolio para diferentes periodos de tiempo. Nos da una información vital a la hora de adquirir cirta acción o portafolio. 
+Con la ayuda del VaR podemos tener conocimiento de cuánto es el máximo valor posible de párdida de nuestro portafolio para diferentes periodos de tiempo. Nos da una información vital a la hora de adquirir cierta acción o portafolio. 
+Nos parecen ambas metodologías útiles, aunque da menor nivel de error en el backtesting el VaR no paramétrico da mejores medidas y estimaciones del VaR.
+Con todo este proyecto, pudimos analizar los diferente métodos y medidas que nos ayudan a estudiar el riesgo que conlleva adquirir algun activo financiero. Ya sea con suposiciones de normalidad o no. Fue muy interesante estudiar este activo debido a que aprendimos a verlo de otra manera más allá de sálo comprar o vender dependiendo de su gráfica. Ahora tenemos herramientas para elegir de manera óptima los activos de nuestro portafolio, teniendo en cuenta el riesgo que conllevan. 
 
-Con todo este proyecto, pudimos analizar los diferente métodos y medidas que nos ayudan a estudiar el riesgo que con lleva adquirir algun activo financiero. Ya sea con suposiciones de normalidad o no. Fue muy interesante estudiar este activo debido a que aprendimos a verlo de otra manera mas alla de solo comprar o vender dependiendo de su gráfica. Ahora tenemos herramientas para elegir de manera optima los activos de nuestro portafolio, teniendo en cuenta el riesgo que conlleva. 
-
-Tambien aprendimos a determinar precios, para uno o mas días con diferentes métodologias. Lo cual tambien podemos aplicar de ahora en adelante, día con cía en nuestros portafolios personales. 
+También aprendimos a determinar volatilidades, para uno o mas días con diferentes métodologias. Lo cuál tambien podemos aplicar de ahora en adelante, día con día en nuestros portafolios personales. 
 
 Juan Pablo Rodriguez
 Iván Arellano Ruelas
